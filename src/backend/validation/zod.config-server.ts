@@ -1,0 +1,30 @@
+import dotenv from "dotenv"
+dotenv.config();
+
+import { z } from "zod";
+// import logError from "../errors/log-error";
+
+const baseServerEnvSchema = z.object({
+    PORT: z.number().min(1, 'PORT Saknas')
+});
+
+const isTest = process.env.NODE_ENV === "test";
+
+const serverEnvSchema = isTest
+  ? baseServerEnvSchema.partial()
+  : baseServerEnvSchema;
+
+const parsed = serverEnvSchema.safeParse(process.env);
+
+if (!parsed.success) {
+  const formattedErrors = z.flattenError(parsed.error);
+  logError("Ogiltiga miljövariabler");
+
+  for (const [key, error] of Object.entries(formattedErrors.fieldErrors)) {
+    logError(`- ${key}: ${error?.join(", ")}`);
+  }
+
+  process.exit(1);
+}
+
+export const env = parsed.data as z.infer<typeof baseServerEnvSchema>;

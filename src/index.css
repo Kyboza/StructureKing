@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import 'tailwindcss';
+
+@theme {
+    --font-default: 'Roboto', sans-serif;
+    --font-title: 'Bebas Neue', sans-serif;
+
+    --color-primary: #6a4c7d;
+    --color-primary: oklch(0.52 0.08 305);
+
+    --color-letter: #000000;
+    --color-letter: oklch(0 0 0);
+
+    --color-letter-dark: #ffffff;
+    --color-letter-dark: oklch(1 0 0);
+
+    --color-background: #ffffff;
+    --color-background: oklch(1 0 0);
+
+    --color-background-dark: #2e2e2e;
+    --color-background-dark: oklch(0.18 0 0);
+
+    --color-error: #dc2626;
+    --color-error: oklch(0.55 0.25 29);
+
+    --shadow-footer: 0px -1px 12px rgba(0, 0, 0, 0.08);
+}
