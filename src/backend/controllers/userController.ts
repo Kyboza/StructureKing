@@ -1,0 +1,2 @@
+// Skapa Middleware JWTverify samt hantera useAuthCheck som hanterar navigering på frontend.
+//Testa om register och login fungerar skapa sedan sidan login success ska ta en till, skapa sedan resten av rooms bokning etc.

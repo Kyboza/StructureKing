@@ -3,98 +3,141 @@ import { useState } from "react"
 import OuterContainer from "../reusable/OuterContainer"
 import SectionContainer from "../reusable/SectionContainer"
 import Button from "../reusable/Button"
+import Divider from "../reusable/Divider"
 
 import { loginSchema } from "../../backend/validation/zod-schemas"
+import { registerSchema } from "../../backend/validation/zod-schemas"
 import type { LoginSchemaType } from "../../backend/validation/zod-schemas"
+import type { RegisterSchemaType } from "../../backend/validation/zod-schemas"
+
 
 
 const Home = () => {
-  const [formData, setFormData] = useState<LoginSchemaType>({
-    email: "",
-    name: "",
-    password: "",
-    website: "",
-  })
+  const [isSignInActive, setIsSignInActive] = useState<boolean>(true);
 
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof LoginSchemaType, string>>
-  >({})
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+// LOGIN
+    const [loginFormData, setLoginFormData] = useState<LoginSchemaType>({
+      email: "",
+      username: "",
+      password: "",
+      website: "",
+    })
 
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }))
-  }
+    const [loginErrors, setLoginErrors] = useState<
+      Partial<Record<keyof LoginSchemaType, string>>
+    >({})
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target
 
-    const result = loginSchema.safeParse(formData)
-
-      if (!result.success) {
-      const fieldErrors: Partial<Record<keyof LoginSchemaType, string>> = {}
-
-        for (const err of result.error.issues) {  // issues är samma som errors
-          const field = err.path[0] as keyof LoginSchemaType
-          fieldErrors[field] = err.message
-        }
-
-        setErrors(fieldErrors)
-        return
+      setLoginFormData(prev => ({
+        ...prev,
+        [name]: value,
+      }))
     }
-    setErrors({})
-    console.log("VALID DATA:", result.data)
+
+    const handleLoginSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+      e.preventDefault()
+
+      const result = loginSchema.safeParse(loginFormData)
+
+        if (!result.success) {
+        const fieldErrors: Partial<Record<keyof LoginSchemaType, string>> = {}
+
+          for (const err of result.error.issues) {  // issues är samma som errors
+            const field = err.path[0] as keyof LoginSchemaType
+            fieldErrors[field] = err.message
+          }
+
+          setLoginErrors(fieldErrors)
+          return
+      }
+      setLoginErrors({})
+      console.log("VALID DATA:", result.data)
+    }
+
+
+  // REGISTER
+  const [registerFormData, setRegisterFormData] = useState<RegisterSchemaType>({
+    email: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
+    website: ""
+  });
+
+  const [registerErrors, setRegisterErrors] = useState<Partial<Record<keyof RegisterSchemaType, string>>>({});
+
+  const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const {name, value} = e.target
+    setRegisterFormData(prev => ({...prev, [name]: value}))
+  };
+
+  const handleRegisterSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const result = registerSchema.safeParse(registerFormData);
+    if(!result.success){
+      const fieldErrors: Partial<Record<keyof RegisterSchemaType, string>> = {};
+
+      for(const err of result.error.issues){
+        const field = err.path[0] as keyof RegisterSchemaType;
+        fieldErrors[field] = err.message
+      }
+      setRegisterErrors(fieldErrors);
+      return
+    }
+    setRegisterErrors({})
   }
 
   return (
     <OuterContainer>
-      <h1 className="font-bold italic text-2xl md:text-4xl mt-4">Sign In Form</h1>
+      {isSignInActive ? (<h1 className="font-bold italic text-2xl md:text-4xl mt-4">Sign In Form</h1>) : (<h1 className="font-bold italic text-2xl md:text-4xl mt-4">Register Form</h1>)}
       <SectionContainer>
-        <form className="flex flex-col items-center gap-6 text-letter dark:text-letter-dark h-auto w-full" id="login-form" noValidate onSubmit={handleSubmit}>
+        <form className="flex flex-col items-center gap-6 text-letter dark:text-letter-dark h-auto w-full" id={`${isSignInActive ? "login-form" : "register-form"}`} noValidate onSubmit={isSignInActive ? handleLoginSubmit : handleRegisterSubmit}>
           
-          {/* Email */}
-          <label htmlFor="login-email" className="sr-only">
-            Email
-          </label>
+          {isSignInActive ? (
+            <>
+            <label htmlFor="login-email" className="sr-only">
+              Email
+            </label>
           <input
             className='placeholder:text-gray-500 dark:placeholder:text-letter-dark placeholder:text-base md:placeholder:text-lg text-sm md:text-base w-4/5 h-10 md:h-14 border rounded-md border-gray-500 shadow-md p-2'
             id="login-email"
             name="login-email"
             type="login-email"
             placeholder="Email..."
-            value={formData.email}
-            onChange={handleChange}
+            value={loginFormData.email}
+            onChange={handleLoginChange}
             required
-            aria-invalid={!!errors.email}
-            aria-describedby={errors.email ? "login-email-error" : undefined}
+            aria-invalid={!!loginErrors.email}
+            aria-describedby={loginErrors.email ? "login-email-error" : undefined}
           />
-          {errors.email && (
+          {loginErrors.email && (
             <p className="text-error text-sm lg:text-base" id="login-email-error" role="alert">
-              {errors.email}
+              {loginErrors.email}
             </p>
           )}
 
-           <label htmlFor="login-name" className="sr-only">
-            Name
+           <label htmlFor="login-username" className="sr-only">
+            Username
           </label>
           <input
             className='placeholder:text-gray-500 dark:placeholder:text-letter-dark placeholder:text-base md:placeholder:text-lg text-sm md:text-base w-4/5 h-10 md:h-14 border rounded-md border-gray-500 shadow-md p-2'
-            id="login-name"
-            name="login-name"
-            type="login-name"
-            placeholder="Name..."
-            value={formData.email}
-            onChange={handleChange}
+            id="login-username"
+            name="login-username"
+            type="login-username"
+            placeholder="Username..."
+            value={loginErrors.email}
+            onChange={handleLoginChange}
             required
-            aria-invalid={!!errors.email}
-            aria-describedby={errors.email ? "login-name-error" : undefined}
+            aria-invalid={!!loginErrors.email}
+            aria-describedby={loginErrors.email ? "login-username-error" : undefined}
           />
-          {errors.name && (
-            <p className="text-error text-sm lg:text-base" id="login-name-error" role="alert">
-              {errors.name}
+          {loginErrors.username && (
+            <p className="text-error text-sm lg:text-base" id="login-username-error" role="alert">
+              {loginErrors.username}
             </p>
           )}
 
@@ -108,35 +151,157 @@ const Home = () => {
             name="login-password"
             type="login-password"
             placeholder="Password..."
-            value={formData.password}
-            onChange={handleChange}
+            value={loginErrors.password}
+            onChange={handleLoginChange}
             required
-            aria-invalid={!!errors.password}
-            aria-describedby={errors.password ? "login-password-error" : undefined}
+            aria-invalid={!!loginErrors.password}
+            aria-describedby={loginErrors.password ? "login-password-error" : undefined}
           />
-          {errors.password && (
+          {loginErrors.password && (
             <p className="text-error text-sm lg:text-base" id="login-password-error" role="alert">
-              {errors.password}
+              {loginErrors.password}
             </p>
           )}
 
           {/* Honeypot */}
-          <label htmlFor="website" className="sr-only">
+          <label htmlFor="login-website" className="sr-only">
             Website
           </label>
           <input
-            id="website"
-            name="website"
+            id="login-website"
+            name="login-website"
             type="text"
-            value={formData.website}
-            onChange={handleChange}
+            value={loginErrors.website}
+            onChange={handleLoginChange}
             tabIndex={-1}
             autoComplete="off"
             className="absolute left-2455 p-0 border-0 m-0 w-px h-px"
           />
+          </>
+          ) : (
+          <>
+          <label htmlFor="register-email" className="sr-only">
+              Email
+            </label>
+          <input
+            className='placeholder:text-gray-500 dark:placeholder:text-letter-dark placeholder:text-base md:placeholder:text-lg text-sm md:text-base w-4/5 h-10 md:h-14 border rounded-md border-gray-500 shadow-md p-2'
+            id="register-email"
+            name="register-email"
+            type="register-email"
+            placeholder="Email..."
+            value={registerFormData.email}
+            onChange={handleRegisterChange}
+            required
+            aria-invalid={!!registerErrors.email}
+            aria-describedby={registerErrors.email ? "register-email-error" : undefined}
+          />
+          {registerErrors.email && (
+            <p className="text-error text-sm lg:text-base" id="register-email-error" role="alert">
+              {registerErrors.email}
+            </p>
+          )}
 
-          <Button type="submit" label="Start sign in..." title="Sign in"/>
+           <label htmlFor="register-username" className="sr-only">
+            Username
+          </label>
+          <input
+            className='placeholder:text-gray-500 dark:placeholder:text-letter-dark placeholder:text-base md:placeholder:text-lg text-sm md:text-base w-4/5 h-10 md:h-14 border rounded-md border-gray-500 shadow-md p-2'
+            id="register-username"
+            name="register-username"
+            type="register-username"
+            placeholder="Username..."
+            value={registerErrors.username}
+            onChange={handleRegisterChange}
+            required
+            aria-invalid={!!registerErrors.username}
+            aria-describedby={registerErrors.username ? "register-username-error" : undefined}
+          />
+          {registerErrors.username && (
+            <p className="text-error text-sm lg:text-base" id="register-username-error" role="alert">
+              {registerErrors.username}
+            </p>
+          )}
+
+          {/* Password */}
+          <label htmlFor="register-password" className="sr-only">
+            Password
+          </label>
+          <input
+            className='placeholder:text-gray-500 dark:placeholder:text-letter-dark placeholder:text-base md:placeholder:text-lg text-sm md:text-base w-4/5 h-10 md:h-14 border rounded-md border-gray-500 shadow-md p-2'
+            id="register-password"
+            name="register-password"
+            type="register-password"
+            placeholder="Password..."
+            value={registerErrors.password}
+            onChange={handleRegisterChange}
+            required
+            aria-invalid={!!registerErrors.password}
+            aria-describedby={registerErrors.password ? "register-password-error" : undefined}
+          />
+          {registerErrors.password && (
+            <p className="text-error text-sm lg:text-base" id="register-password-error" role="alert">
+              {registerErrors.password}
+            </p>
+          )}
+
+          <label htmlFor="register-password-confirm" className="sr-only">
+            Confirm Password
+          </label>
+          <input
+            className='placeholder:text-gray-500 dark:placeholder:text-letter-dark placeholder:text-base md:placeholder:text-lg text-sm md:text-base w-4/5 h-10 md:h-14 border rounded-md border-gray-500 shadow-md p-2'
+            id="register-password-confirm"
+            name="register-password-confirm"
+            type="register-password-confirm"
+            placeholder="Confirm Password..."
+            value={registerErrors.confirmPassword}
+            onChange={handleRegisterChange}
+            required
+            aria-invalid={!!registerErrors.confirmPassword}
+            aria-describedby={registerErrors.confirmPassword ? "register-confirm-password-error" : undefined}
+          />
+          {registerErrors.password && (
+            <p className="text-error text-sm lg:text-base" id="register-confirm-password-error" role="alert">
+              {registerErrors.confirmPassword}
+            </p>
+          )}
+
+          {/* Honeypot */}
+          <label htmlFor="register-website" className="sr-only">
+            Website
+          </label>
+          <input
+            id="register-website"
+            name="register-website"
+            type="text"
+            value={registerErrors.website}
+            onChange={handleRegisterChange}
+            tabIndex={-1}
+            autoComplete="off"
+            className="absolute left-2455 p-0 border-0 m-0 w-px h-px"
+          />
+          </>
+          )}
+         
+
+          {isSignInActive ? (<Button type="submit" label="Start sign in..." title="Sign in"/>) : (<Button type="submit" label="Start register..." title="Register"/>)}
         </form>
+
+
+        <Divider/>
+        <div className="flex flex-row items-center justify-center gap-1">
+          {isSignInActive ? (
+            <>
+            <p className="text-sm md:text-base">Don't have an account?</p>
+            <button aria-label="Go to register" onClick={() => setIsSignInActive(prev => !prev)} className="font-semibold text-sm md:text-base italic text-primary cursor-pointer">Register</button>
+            </>
+          ) : (
+             <>
+            <p className="text-sm md:text-base">Already have an account?</p>
+            <button aria-label="Go to sign in" onClick={() => setIsSignInActive(prev => !prev)} className="font-semibold text-sm md:text-base italic text-primary cursor-pointer">Sign In</button>
+            </>
+          )}
+         
+        </div>
       </SectionContainer>
     </OuterContainer>
   )

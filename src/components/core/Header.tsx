@@ -6,7 +6,7 @@ const Header = () => {
   return (
     <header className="h-25 border-b border-gray-500 shadow-md bg-primary flex flex-row items-center justify-between z-10">
         <div className="flex basis-1/3">
-        <button onClick={() =>setIsOpen(prev => !prev)} id="dropdown-toggle" aria- aria-haspopup="true" aria-label={`${isOpen ? 'Close menu' : 'Open menu'}`} className="cursor-pointer h-12 w-12 flex flex-col justify-evenly items-center ml-2 p-2">
+        <button onClick={() =>setIsOpen(prev => !prev)} id="dropdown-toggle" aria-haspopup="true" aria-label={`${isOpen ? 'Close menu' : 'Open menu'}`} className="cursor-pointer h-12 w-12 flex flex-col justify-evenly items-center ml-2 p-2">
             <>
            {[0,1,2].map((_, i) => (
             <span

@@ -2,10 +2,14 @@ import dotenv from "dotenv"
 dotenv.config();
 
 import { z } from "zod";
-// import logError from "../errors/log-error";
+import { logError } from "../utils/logError";
 
 const baseServerEnvSchema = z.object({
-    PORT: z.number().min(1, 'PORT Saknas')
+    PORT: z.number().min(1, 'PORT Saknas'),
+    MONGODB_URI: z.string().min(1, "MONGODB_URI Saknas"),
+    SETNRY_DSN: z.string().min(1, "SENTRY DSN Saknas"),
+    JWT_SECRET: z.string().min(1, "JWT_SECRET Saknas"),
+    PEPPER_SECRET: z.string().min(1, "PEPPER_SECRET Saknas"),
 });
 
 const isTest = process.env.NODE_ENV === "test";

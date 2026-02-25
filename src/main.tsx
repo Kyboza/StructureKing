@@ -1,16 +1,26 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import AppContext from './contexts/AppContext.tsx'
-import './index.css'
-import App from './App.tsx'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import AppContext from "./contexts/AppContext.tsx";
+import App from "./App.tsx";
+import "./index.css";
+import * as Sentry from "@sentry/react";
 
-createRoot(document.getElementById('root')!).render(
+Sentry.init({
+  dsn: import.meta.env.SENTRY_DSN,
+  environment: import.meta.env.MODE, 
+  sendDefaultPii: true, 
+});
+
+const container = document.getElementById("root");
+const root = createRoot(container!);
+
+root.render(
   <StrictMode>
-    <AppContext>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-    </AppContext>
-  </StrictMode>,
-)
+      <AppContext>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </AppContext>
+  </StrictMode>
+);
