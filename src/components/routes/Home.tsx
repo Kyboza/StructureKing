@@ -1,5 +1,8 @@
 import { useState } from "react"
 
+import { useAuthCheck } from "../../frontend-utils/useAuthCheck"
+import { useNavigate } from "react-router-dom"
+
 import OuterContainer from "../reusable/OuterContainer"
 import SectionContainer from "../reusable/SectionContainer"
 import Button from "../reusable/Button"
@@ -13,8 +16,12 @@ import type { RegisterSchemaType } from "../../backend/validation/zod-schemas"
 
 
 const Home = () => {
-  const [isSignInActive, setIsSignInActive] = useState<boolean>(true);
 
+  const [isSignInActive, setIsSignInActive] = useState<boolean>(true);
+  const [generalError, setGeneralError] = useState<string>("")
+  const navigate = useNavigate();
+
+  useAuthCheck({require: "none"})
 
 // LOGIN
     const [loginFormData, setLoginFormData] = useState<LoginSchemaType>({
@@ -37,25 +44,70 @@ const Home = () => {
       }))
     }
 
-    const handleLoginSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-      e.preventDefault()
+   const handleLoginSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-      const result = loginSchema.safeParse(loginFormData)
+  // 1️⃣ Frontend-validering med Zod
+  const result = loginSchema.safeParse(loginFormData);
 
-        if (!result.success) {
-        const fieldErrors: Partial<Record<keyof LoginSchemaType, string>> = {}
-
-          for (const err of result.error.issues) {  // issues är samma som errors
-            const field = err.path[0] as keyof LoginSchemaType
-            fieldErrors[field] = err.message
-          }
-
-          setLoginErrors(fieldErrors)
-          return
-      }
-      setLoginErrors({})
-      console.log("VALID DATA:", result.data)
+  if (!result.success) {
+    const fieldErrors: Partial<Record<keyof LoginSchemaType, string>> = {};
+    for (const err of result.error.issues) {
+      const field = err.path[0] as keyof LoginSchemaType;
+      fieldErrors[field] = err.message;
     }
+    setLoginErrors(fieldErrors);
+    return;
+  }
+
+  // Rensa tidigare errors
+  setLoginErrors({});
+
+  try {
+    // 2️⃣ Skicka login request till backend
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: loginFormData.email,
+        password: loginFormData.password,
+        website: loginFormData.website // honeypot
+      }),
+      credentials: "include" // så cookies sätts
+    });
+
+    const data = await res.json();
+
+    // 3️⃣ Hantera backend-response
+    if (!data.success) {
+      setLoginErrors(data.error || "Login failed" );
+      return;
+    }
+
+    // 4️⃣ Om login lyckades
+    alert("Login successful!");
+    // Här kan du spara access_token i context/state om du vill
+    // t.ex. setAuth({ accessToken: data.accessToken });
+
+    // Rensa formulär
+    setLoginFormData({
+      email: "",
+      username: "",
+      password: "",
+      website: ""
+    });
+
+    // Om du har en dashboard-sida, navigera dit
+    // navigate("/dashboard");
+    navigate("/dashboard")
+
+  } catch (err) {
+    console.error("Login error:", err);
+    setGeneralError("Server error. Please try again later." );
+  }
+};
 
 
   // REGISTER
@@ -74,22 +126,71 @@ const Home = () => {
     setRegisterFormData(prev => ({...prev, [name]: value}))
   };
 
-  const handleRegisterSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
+ const handleRegisterSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-    const result = registerSchema.safeParse(registerFormData);
-    if(!result.success){
-      const fieldErrors: Partial<Record<keyof RegisterSchemaType, string>> = {};
-
-      for(const err of result.error.issues){
-        const field = err.path[0] as keyof RegisterSchemaType;
-        fieldErrors[field] = err.message
-      }
-      setRegisterErrors(fieldErrors);
-      return
+  // 1️⃣ Validera frontend med Zod
+  const result = registerSchema.safeParse(registerFormData);
+  if (!result.success) {
+    const fieldErrors: Partial<Record<keyof RegisterSchemaType, string>> = {};
+    for (const err of result.error.issues) {
+      const field = err.path[0] as keyof RegisterSchemaType;
+      fieldErrors[field] = err.message;
     }
-    setRegisterErrors({})
+    setRegisterErrors(fieldErrors);
+    return;
   }
+
+  // Rensa tidigare errors
+  setRegisterErrors({});
+
+  try {
+    // 2️⃣ Skicka request till backend
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: registerFormData.email,
+        username: registerFormData.username,
+        password: registerFormData.password,
+        website: registerFormData.website // honeypot
+      })
+    });
+
+    const data = await res.json();
+
+    // 3️⃣ Hantera backend-svar
+    if (!data.success) {
+      // Om backend skickar field-specifika errors
+      if (data.fieldErrors) {
+        setRegisterErrors(data.fieldErrors);
+      } else {
+        // Annars generellt fel
+        setGeneralError( data.error || "Registration failed" );
+      }
+      return;
+    }
+
+    // 4️⃣ Om allt gick bra
+    alert("User registered successfully!");
+    setRegisterFormData({
+      email: "",
+      username: "",
+      password: "",
+      confirmPassword: "",
+      website: ""
+    });
+
+    // Om du vill, byt till sign in form
+    setIsSignInActive(true);
+
+  } catch (err) {
+    console.error("Error during registration:", err);
+    setGeneralError("Server error. Please try again later.");
+  }
+};
 
   return (
     <OuterContainer>
@@ -105,7 +206,7 @@ const Home = () => {
           <input
             className='placeholder:text-gray-500 dark:placeholder:text-letter-dark placeholder:text-base md:placeholder:text-lg text-sm md:text-base w-4/5 h-10 md:h-14 border rounded-md border-gray-500 shadow-md p-2'
             id="login-email"
-            name="login-email"
+            name="email"
             type="login-email"
             placeholder="Email..."
             value={loginFormData.email}
@@ -126,10 +227,10 @@ const Home = () => {
           <input
             className='placeholder:text-gray-500 dark:placeholder:text-letter-dark placeholder:text-base md:placeholder:text-lg text-sm md:text-base w-4/5 h-10 md:h-14 border rounded-md border-gray-500 shadow-md p-2'
             id="login-username"
-            name="login-username"
+            name="username"
             type="login-username"
             placeholder="Username..."
-            value={loginErrors.email}
+            value={loginFormData.username}
             onChange={handleLoginChange}
             required
             aria-invalid={!!loginErrors.email}
@@ -148,10 +249,10 @@ const Home = () => {
           <input
             className='placeholder:text-gray-500 dark:placeholder:text-letter-dark placeholder:text-base md:placeholder:text-lg text-sm md:text-base w-4/5 h-10 md:h-14 border rounded-md border-gray-500 shadow-md p-2'
             id="login-password"
-            name="login-password"
+            name="password"
             type="login-password"
             placeholder="Password..."
-            value={loginErrors.password}
+            value={loginFormData.password}
             onChange={handleLoginChange}
             required
             aria-invalid={!!loginErrors.password}
@@ -169,7 +270,7 @@ const Home = () => {
           </label>
           <input
             id="login-website"
-            name="login-website"
+            name="website"
             type="text"
             value={loginErrors.website}
             onChange={handleLoginChange}
@@ -186,7 +287,7 @@ const Home = () => {
           <input
             className='placeholder:text-gray-500 dark:placeholder:text-letter-dark placeholder:text-base md:placeholder:text-lg text-sm md:text-base w-4/5 h-10 md:h-14 border rounded-md border-gray-500 shadow-md p-2'
             id="register-email"
-            name="register-email"
+            name="email"
             type="register-email"
             placeholder="Email..."
             value={registerFormData.email}
@@ -207,10 +308,10 @@ const Home = () => {
           <input
             className='placeholder:text-gray-500 dark:placeholder:text-letter-dark placeholder:text-base md:placeholder:text-lg text-sm md:text-base w-4/5 h-10 md:h-14 border rounded-md border-gray-500 shadow-md p-2'
             id="register-username"
-            name="register-username"
+            name="username"
             type="register-username"
             placeholder="Username..."
-            value={registerErrors.username}
+            value={registerFormData.username}
             onChange={handleRegisterChange}
             required
             aria-invalid={!!registerErrors.username}
@@ -229,10 +330,10 @@ const Home = () => {
           <input
             className='placeholder:text-gray-500 dark:placeholder:text-letter-dark placeholder:text-base md:placeholder:text-lg text-sm md:text-base w-4/5 h-10 md:h-14 border rounded-md border-gray-500 shadow-md p-2'
             id="register-password"
-            name="register-password"
+            name="password"
             type="register-password"
             placeholder="Password..."
-            value={registerErrors.password}
+            value={registerFormData.password}
             onChange={handleRegisterChange}
             required
             aria-invalid={!!registerErrors.password}
@@ -250,10 +351,10 @@ const Home = () => {
           <input
             className='placeholder:text-gray-500 dark:placeholder:text-letter-dark placeholder:text-base md:placeholder:text-lg text-sm md:text-base w-4/5 h-10 md:h-14 border rounded-md border-gray-500 shadow-md p-2'
             id="register-password-confirm"
-            name="register-password-confirm"
+            name="confirmPassword"
             type="register-password-confirm"
             placeholder="Confirm Password..."
-            value={registerErrors.confirmPassword}
+            value={registerFormData.confirmPassword}
             onChange={handleRegisterChange}
             required
             aria-invalid={!!registerErrors.confirmPassword}
@@ -271,7 +372,7 @@ const Home = () => {
           </label>
           <input
             id="register-website"
-            name="register-website"
+            name="website"
             type="text"
             value={registerErrors.website}
             onChange={handleRegisterChange}
@@ -292,12 +393,12 @@ const Home = () => {
           {isSignInActive ? (
             <>
             <p className="text-sm md:text-base">Don't have an account?</p>
-            <button aria-label="Go to register" onClick={() => setIsSignInActive(prev => !prev)} className="font-semibold text-sm md:text-base italic text-primary cursor-pointer">Register</button>
+            <button aria-label="Go to register" onClick={() => {setIsSignInActive(prev => !prev); setLoginFormData(prev => ({...prev, email: "", username: "", password: ""} ))}} className="font-semibold text-sm md:text-base italic text-primary cursor-pointer">Register</button>
             </>
           ) : (
              <>
             <p className="text-sm md:text-base">Already have an account?</p>
-            <button aria-label="Go to sign in" onClick={() => setIsSignInActive(prev => !prev)} className="font-semibold text-sm md:text-base italic text-primary cursor-pointer">Sign In</button>
+            <button aria-label="Go to sign in" onClick={() => {setIsSignInActive(prev => !prev); setRegisterFormData(prev => ({...prev, email: "", username: "", password: ""}))}} className="font-semibold text-sm md:text-base italic text-primary cursor-pointer">Sign In</button>
             </>
           )}
          

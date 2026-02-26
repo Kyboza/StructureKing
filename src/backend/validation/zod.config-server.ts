@@ -2,13 +2,14 @@ import dotenv from "dotenv"
 dotenv.config();
 
 import { z } from "zod";
-import { logError } from "../utils/logError";
+import { logError } from "../utils/logError.ts";
 
 const baseServerEnvSchema = z.object({
     PORT: z.number().min(1, 'PORT Saknas'),
     MONGODB_URI: z.string().min(1, "MONGODB_URI Saknas"),
     SETNRY_DSN: z.string().min(1, "SENTRY DSN Saknas"),
-    JWT_SECRET: z.string().min(1, "JWT_SECRET Saknas"),
+    ACCESS_TOKEN_SECRET: z.string().min(1, "ACCESS_TOKEN_SECRET Saknas"),
+    REFRESH_TOKEN_SECRET: z.string().min(1, "REFRESH_TOKEN_SECRET Saknas"),
     PEPPER_SECRET: z.string().min(1, "PEPPER_SECRET Saknas"),
 });
 

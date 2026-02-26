@@ -1,10 +1,10 @@
-import User from "../database/models/user/user-model";
+import User from "../database/models/user/user-model.ts";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
-import { env } from "../validation/zod.config-server";
-import { logError } from "../utils/logError";
-import { loginSchema } from "../validation/zod-schemas";
-import winstonLogger from "../utils/winstonLogger"; // Winston client
+import { env } from "../validation/zod.config-server.ts";
+import { logError } from "../utils/logError.ts";
+import { loginSchema } from "../validation/zod-schemas.ts";
+import winstonLogger from "../utils/winstonLogger.ts"; // Winston client
 import type { Request, Response } from "express";
 
 export async function loginUser(req: Request, res: Response): Promise<Response>{
@@ -35,13 +35,22 @@ export async function loginUser(req: Request, res: Response): Promise<Response>{
         }
 
         const payload = {id: user._id, username: user.username, role: user.role};
-        const token = jwt.sign(payload, env.JWT_SECRET, {expiresIn: "1d"});
 
-        res.cookie("jwt", token, {
+        const refreshToken = jwt.sign(payload, env.REFRESH_TOKEN_SECRET, {expiresIn: "7d"});
+        const accessToken =  jwt.sign(payload, env.ACCESS_TOKEN_SECRET, {expiresIn: "1h"});
+
+        res.cookie("refresh_token", refreshToken, {
             httpOnly: true,
-            secure: true,   
+            secure: process.env.NODE_ENV === "production", 
             sameSite: "strict",
-            maxAge: 24 * 60 * 60 * 1000,
+            maxAge: 24 * 60 * 60 * 7 * 1000,
+        });
+
+        res.cookie("access_token", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 60 * 60 * 1000,
         });
 
         return res.status(200).json({message: "User logged in successfully", success: true});

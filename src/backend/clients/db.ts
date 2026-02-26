@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
-import { env } from "../validation/zod.config-server"
-import { logError } from "../utils/logError"
+import { env } from "../validation/zod.config-server.ts"
+import { logError } from "../utils/logError.ts"
 
 const MONGODB_URI = env.MONGODB_URI as string
 

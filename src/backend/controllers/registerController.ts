@@ -1,13 +1,14 @@
-import User from "../database/models/user/user-model";
+import User from "../database/models/user/user-model.ts";
 import bcrypt from "bcrypt";
-import { env } from "../validation/zod.config-server";
-import { logError } from "../utils/logError";
-import { registerSchema } from "../validation/zod-schemas";
-import winstonLogger from "../utils/winstonLogger"; // Winston client
+import { env } from "../validation/zod.config-server.ts";
+import { logError } from "../utils/logError.ts";
+import { registerSchema } from "../validation/zod-schemas.ts";
+import winstonLogger from "../utils/winstonLogger.ts"; // Winston client
 import type { Request, Response } from "express";
 
 export async function registerUser(req: Request, res: Response): Promise<Response> {
   try {
+
     const parsed = registerSchema.safeParse(req.body);
 
     if (!parsed.success) {
