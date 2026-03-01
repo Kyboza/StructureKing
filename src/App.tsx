@@ -3,6 +3,7 @@ import { AppLayout } from "./layouts/AppLayout"
 
 import Home from "./components/routes/Home"
 import Dashboard from "./components/routes/Dashboard"
+
 function App() {
 
   return (

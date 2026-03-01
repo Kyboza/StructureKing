@@ -1,6 +1,7 @@
 // TypeScript (Express)
 import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { env } from "../validation/zod.config-server.ts";
 import { logError } from "../utils/logError.ts";
 
 type Role = "user" | "admin";
@@ -13,7 +14,9 @@ interface AccessClaims {
 }
 
 export async function frontendRedirect(req: Request, res: Response): Promise<Response> {
+  console.log("Nådde")
   const required = (req.body?.require as RequiredMode | undefined) ?? "none";
+  console.log(required)
   const token = req.cookies?.["access_token"];
 
   // Ingen token: behandla som utloggad
@@ -26,7 +29,7 @@ export async function frontendRedirect(req: Request, res: Response): Promise<Res
 
   let claims: AccessClaims;
   try {
-    claims = jwt.verify(token, process.env.JWT_SECRET as string) as AccessClaims;
+    claims = jwt.verify(token, env.ACCESS_TOKEN_SECRET as string) as AccessClaims;
   } catch (error) {
     logError(error)
     if (error instanceof jwt.TokenExpiredError || error instanceof jwt.JsonWebTokenError) {

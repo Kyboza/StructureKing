@@ -15,14 +15,19 @@ export async function loginUser(req: Request, res: Response): Promise<Response>{
             return res.status(400).json({ error: "Invalid data", success: false });
         }
 
-        const { email, password, website } = parsed.data;
+        const { email, username, password, website } = parsed.data;
 
          if (website) {
             winstonLogger.warn("Honeypot triggered", { status: "honeypot" });
             return res.status(400).json({ error: "Could not sign in user", success: false });
         }
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ 
+            $or: [
+                { email: email },
+                { username: username }
+            ]
+        });
         if (!user) {
             winstonLogger.warn("User not found", { status: "not found" });
             return res.status(404).json({ error: "Could not sign in user", success: false });

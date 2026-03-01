@@ -8,7 +8,7 @@ import type { Request, Response } from "express";
 
 export async function registerUser(req: Request, res: Response): Promise<Response> {
   try {
-
+    console.log("Nådde Register API")
     const parsed = registerSchema.safeParse(req.body);
 
     if (!parsed.success) {
@@ -35,7 +35,7 @@ export async function registerUser(req: Request, res: Response): Promise<Respons
     // Skapar användaren
     const newUser = await User.create({
       email,
-      username,
+      name: username,
       password: hashedPassword,
       // role, createdAt, updatedAt → fylls i automatiskt av default i schemat
     });
