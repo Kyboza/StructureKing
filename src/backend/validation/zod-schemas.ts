@@ -27,3 +27,22 @@ export const registerSchema = z.object({
 });
 
 export type RegisterSchemaType = z.infer<typeof registerSchema>
+
+export const roomsSchema = z.object({
+    name: z.string().length(2, "Room name can only contain 2 characters").regex(/^\d[A-Z]$/, "Room name must start with a number and end with a capital letter, Max 2 characters"),
+    capacity: z.coerce.number().min(1, "Capacity must be atleast 1").max(10, "Capacity must be 10 or less"),
+    type: z.enum(["Workspace", "Conference"], "Choose either Workspace or Conference"),
+    website: z.string().optional()
+})
+
+export type RoomsSchemaType = z.infer<typeof roomsSchema>
+
+export const bookingSchema = z.object({
+    roomId: z.string().min(1, "Room id is required").max(2, "User id can max be 2 characters long"),
+    userId: z.coerce.number().min(1, "User id is required").max(2, "User id can max be 2 characters long"),
+    startDate: z.coerce.date(),
+    endDate: z.coerce.date(),
+    website: z.string().optional()
+})
+
+export type BookingSchemaType = z.infer<typeof bookingSchema>

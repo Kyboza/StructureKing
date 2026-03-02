@@ -31,7 +31,6 @@ const LoginForm = () => {
   };
 
   const handleLoginSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    console.log("Nådde Submit")
     e.preventDefault();
 
     // 1️⃣ Frontend-validering med Zod

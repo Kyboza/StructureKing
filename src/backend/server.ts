@@ -8,13 +8,17 @@ import { logError } from './utils/logError.ts';
 import { env } from './validation/zod.config-server.ts';
 
 import { ratelimitCheck } from './middleware/ratelimit/ratelimitCheck.ts';
-// import { verifyJWT } from './middleware/auth/verifyJWT'
+import { verifyJWT } from './middleware/auth/verifyJWT.ts'
+import { verifyAdmin } from './middleware/auth/verifyAdmin.ts';
+import { noJWTAllowed } from './middleware/auth/noJWTAllowed.ts';
 
 
 import registerRoute from './routes/registerRoute.ts';
 import loginRoute from './routes/loginRoute.ts';
 import frontendRedirectRoute from './routes/frontendRedirectRoute.ts';
 import refreshAccessTokenRoute from './routes/refreshAccessTokenRoute.ts';
+import roomsRoute from './routes/roomRoutes.ts';
+import bookingsRoute from './routes/bookingRoutes.ts';
 
 import type { Express } from 'express';
 
@@ -30,7 +34,6 @@ const runServer = async () => {
 
     // Middleware
     app.use(cors(corsOptions));
-    // app.set("trust proxy", 1);
     app.use(cookieParser());
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
@@ -38,10 +41,14 @@ const runServer = async () => {
 
     // API ROUTES
     console.log("Registering routes…");
-    app.use("/api/register", ratelimitCheck, registerRoute);
-    app.use("/api/login", ratelimitCheck, loginRoute);
+    app.use("/api/register", ratelimitCheck, noJWTAllowed, registerRoute);
+    app.use("/api/login", ratelimitCheck, noJWTAllowed, loginRoute);
+
     app.use("/api/frontendRedirect", ratelimitCheck, frontendRedirectRoute);
     app.use("/api/refreshAccessToken", ratelimitCheck, refreshAccessTokenRoute);
+
+    app.use("/api/rooms", ratelimitCheck, verifyJWT, verifyAdmin, roomsRoute);
+    app.use("/api/bookings", ratelimitCheck, verifyJWT, bookingsRoute);
 
     // Start server
     app.listen(env.PORT, () => {

@@ -39,7 +39,7 @@ export async function loginUser(req: Request, res: Response): Promise<Response>{
             return res.status(401).json({ error: "Could not sign in user", success: false });
         }
 
-        const payload = {id: user._id, username: user.username, role: user.role};
+        const payload = {id: user._id.toString(), username: user.username, role: user.role};
 
         const refreshToken = jwt.sign(payload, env.REFRESH_TOKEN_SECRET, {expiresIn: "7d"});
         const accessToken =  jwt.sign(payload, env.ACCESS_TOKEN_SECRET, {expiresIn: "1h"});

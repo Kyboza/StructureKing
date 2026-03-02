@@ -3,6 +3,7 @@ import { AppLayout } from "./layouts/AppLayout"
 
 import Home from "./components/routes/Home"
 import Dashboard from "./components/routes/Dashboard"
+import Admin from "./components/routes/Admin"
 
 function App() {
 
@@ -11,6 +12,7 @@ function App() {
       <Route path="/" element={<AppLayout />}>
           <Route index element={<Home/>}/>
           <Route path="/dashboard" element={<Dashboard/>}/>
+          <Route path="/admin" element={<Admin/>}/>
       </Route>
    </Routes>
   )

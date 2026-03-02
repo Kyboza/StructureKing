@@ -10,7 +10,7 @@ import LoginForm from "../forms/LoginForm";
 import RegisterForm from "../forms/RegisterForm";
 
 const Home = () => {
-  const authStatus = useAuthCheck({ require: "none" });
+  const authStatus = useAuthCheck({ require: "None" });
   const [isSignInActive, setIsSignInActive] = useState<boolean>(true);
   if (authStatus === null) return null; // eller <Loading />
 

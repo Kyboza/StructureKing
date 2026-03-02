@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-type Role = "none" | "user" | "admin";
-type AuthRequirement = "none" | "user" | "admin";
+type Role = "None" | "User" | "Admin";
+type AuthRequirement = "None" | "User" | "Admin";
 
 type UseAuthCheckOptions = { require: AuthRequirement };
 export type AuthStatus = { authenticated: boolean; role: Role } | null;
@@ -12,46 +12,35 @@ export function useAuthCheck({ require }: UseAuthCheckOptions): AuthStatus {
   const navigate = useNavigate();
 
   useEffect(() => {
-    let alive = true;
-
-    console.log("[useAuthCheck] Hook mounted. Require:", require);
+    const controller = new AbortController();
+    const signal = controller.signal;
 
     (async () => {
       try {
-        console.log("[useAuthCheck] Fetching /api/frontendRedirect...");
         let res = await fetch("http://localhost:3000/api/frontendRedirect", {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ require }),
+          signal, // ✅ kopplar signalen till fetchen
         });
-
-        console.log("[useAuthCheck] Response status:", res.status);
-
+        
         // Om token har gått ut → försök refresh
-        if (res.status === 401) {
-          console.log("[useAuthCheck] Token expired, trying refresh...");
+        if (res.status === 401 || require === "None") {
           const r = await fetch("http://localhost:3000/api/refreshAccessToken", {
             method: "POST",
             credentials: "include",
           });
-          console.log("[useAuthCheck] Refresh response status:", r.status);
 
           if (r.ok) {
-            console.log("[useAuthCheck] Refresh successful, retrying frontendRedirect...");
             res = await fetch("http://localhost:3000/api/frontendRedirect", {
               method: "POST",
               credentials: "include",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ require }),
+              signal, // ✅ signal även här
             });
-            console.log("[useAuthCheck] Retried frontendRedirect status:", res.status);
           }
-        }
-
-        if (!alive) {
-          console.log("[useAuthCheck] Component unmounted before response");
-          return;
         }
 
         if (res.ok) {
@@ -60,40 +49,37 @@ export function useAuthCheck({ require }: UseAuthCheckOptions): AuthStatus {
             role: Role;
             success: boolean;
           };
-          console.log("[useAuthCheck] FrontendRedirect data:", data);
 
           setStatus({ authenticated: data.authenticated, role: data.role });
 
           // Redirect: från / → /dashboard om inloggad och require = none
-          if (require === "none" && data.authenticated) {
-            console.log("[useAuthCheck] User is authenticated → navigating to /dashboard");
+          if (require === "None" && data.authenticated) {
             navigate("/dashboard", { replace: true });
           }
 
           return;
         }
 
-        console.log("[useAuthCheck] Fetch not OK, require !== none?", require !== "none");
-
         // Om sidan kräver auth men fetch misslyckades → markera utloggad och redirect
-        if (require !== "none") {
-          console.log("[useAuthCheck] User not authenticated → navigating to /");
-          setStatus({ authenticated: false, role: "none" });
+        if (require !== "None") {
+          setStatus({ authenticated: false, role: "None" });
           navigate("/", { replace: true });
         }
-      } catch (error) {
-        console.error("[useAuthCheck] Error during auth check:", error);
-        if (alive && require !== "none") {
-          console.log("[useAuthCheck] Setting status to logged out and navigating /");
-          setStatus({ authenticated: false, role: "none" });
+      } catch (err: unknown) {
+        // Om fetch avbröts → gör inget
+        if ((err as { name?: string }).name === "AbortError") return;
+
+        // Annars: markera utloggad och redirect
+        if (require !== "None") {
+          setStatus({ authenticated: false, role: "None" });
           navigate("/", { replace: true });
         }
       }
     })();
 
+    // Cleanup: avbryt fetchen om komponenten unmountas
     return () => {
-      console.log("[useAuthCheck] Cleanup, setting alive = false");
-      alive = false;
+      controller.abort();
     };
   }, [require, navigate]);
 
