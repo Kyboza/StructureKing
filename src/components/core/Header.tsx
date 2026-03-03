@@ -1,10 +1,12 @@
 import { useDropdown } from "../../contexts/hooks/useDropdown"
+import Dropdown from "../route-specific/Header/Dropdown";
 
 const Header = () => {
     const {isOpen, setIsOpen} = useDropdown();
 
   return (
-    <header className="h-25 border-b border-gray-500 shadow-md bg-primary flex flex-row items-center justify-between z-10">
+    <>
+    <header className="h-25 border-b relative border-gray-500 shadow-md bg-primary flex flex-row items-center justify-between z-10">
         <div className="flex basis-1/3">
         <button onClick={() =>setIsOpen(prev => !prev)} id="dropdown-toggle" aria-haspopup="true" aria-label={`${isOpen ? 'Close menu' : 'Open menu'}`} className="cursor-pointer h-12 w-12 flex flex-col justify-evenly items-center ml-2 p-2">
             <>
@@ -34,6 +36,8 @@ const Header = () => {
             />
         </div>
     </header>
+    <Dropdown/>
+    </>
   )
 }
 

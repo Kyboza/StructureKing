@@ -4,20 +4,20 @@ import winstonLogger from "../utils/winstonLogger.ts";
 import { logError } from "../utils/logError.ts";
 import type { Request, Response } from "express";
 
-/* =========================
-   GET USER BOOKINGS
-========================= */
+
 export async function getUserBookings(req: Request, res: Response): Promise<Response> {
   try {
     if (!req.user?.id) return res.status(400).json({ success: false, error: "Missing user id" });
 
     const userId = new Types.ObjectId(req.user.id);
 
-    const bookings = await Booking.find({ userId });
+    const bookings = await Booking.find({ userId }).lean();
+
+    const normalized = bookings.map(b => ({ ...b, _id: b._id.toString() }));
 
     return res.status(200).json({
       success: true,
-      bookings
+      bookings: normalized
     });
   } catch (error) {
     logError(error);
@@ -29,12 +29,27 @@ export async function getUserBookings(req: Request, res: Response): Promise<Resp
 
 export async function getAllBookings(_req: Request, res: Response): Promise<Response> {
   try {
-    const bookings = await Booking.find().sort({ createdAt: -1 });
+    const bookings = await Booking.find()
+      .populate("userId", "name")
+      .populate("roomId", "type")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const formatted = bookings.map(b => ({
+      _id: b._id.toString(),
+      roomId: b.roomId._id.toString(),
+      userId: b.userId._id.toString(),
+      roomType: b.roomId.type,
+      username: b.userId.name,
+      startTime: b.startTime,
+      endTime: b.endTime,
+    }));
 
     return res.status(200).json({
       success: true,
-      bookings
+      bookings: formatted
     });
+
   } catch (error) {
     logError(error);
     winstonLogger.error("Server error during getAllBookings", { error });
@@ -44,9 +59,10 @@ export async function getAllBookings(_req: Request, res: Response): Promise<Resp
 
 export async function postBookings(req: Request, res: Response): Promise<Response> {
   try {
-    if (!req.user?.id) return res.status(400).json({ success: false, error: "Missing user id" });
+    if (!req.user?.id)
+      return res.status(400).json({ success: false, error: "Missing user id" });
 
-    const userId = new Types.ObjectId(req.user.id); // konvertera till ObjectId
+    const userId = new Types.ObjectId(req.user.id);
     const roomId = req.body.roomId;
 
     if (!Types.ObjectId.isValid(roomId)) {
@@ -58,11 +74,14 @@ export async function postBookings(req: Request, res: Response): Promise<Respons
     const start = new Date(req.body.startTime);
     const end = new Date(req.body.endTime);
 
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return res.status(400).json({ success: false, error: "Invalid date format" });
+    }
+
     if (start >= end) {
       return res.status(400).json({ success: false, error: "Start time must be before end time" });
     }
 
-    // Kontrollera överlappande bokningar
     const overlapping = await Booking.findOne({
       roomId: roomObjectId,
       startTime: { $lt: end },
@@ -70,17 +89,24 @@ export async function postBookings(req: Request, res: Response): Promise<Respons
     });
 
     if (overlapping) {
-      return res.status(400).json({ success: false, error: "Room already booked for this time" });
+      return res.status(400).json({
+        success: false,
+        error: "Room already booked for this time"
+      });
     }
 
-    const newBooking = await Booking.create({
-      userId,           // ObjectId
+    await Booking.create({
+      userId,
       roomId: roomObjectId,
       startTime: start,
       endTime: end
     });
 
-    return res.status(201).json({ success: true, booking: newBooking });
+    return res.status(201).json({
+      success: true,
+      message: "Booking created successfully"
+    });
+
   } catch (error) {
     logError(error);
     winstonLogger.error("Server error during postBookings", { error });
@@ -132,20 +158,28 @@ export async function putBookings(req: Request, res: Response): Promise<Response
   }
 }
 
-/* =========================
-   DELETE BOOKING
-========================= */
 export async function deleteBookings(req: Request, res: Response): Promise<Response> {
   try {
+    const requestingUserId = req.user?.id;
+    if (!requestingUserId) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
     const bookingId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
     if (!Types.ObjectId.isValid(bookingId)) {
       return res.status(400).json({ success: false, error: "Invalid booking id" });
     }
 
-    const deletedBooking = await Booking.findByIdAndDelete(bookingId);
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ success: false, error: "Booking not found" });
+    }
+    if (booking.userId.toString() !== requestingUserId) {
+      return res.status(403).json({ success: false, error: "You are not allowed to delete this booking" });
+    }
 
-    if (!deletedBooking) return res.status(404).json({ success: false, error: "Booking not found" });
+    await booking.deleteOne();
 
     return res.status(200).json({ success: true, message: "Booking deleted" });
   } catch (error) {

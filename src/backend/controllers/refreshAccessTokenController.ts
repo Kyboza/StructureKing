@@ -3,11 +3,11 @@ import { env } from "../validation/zod.config-server.ts";
 import jwt from "jsonwebtoken";
 import { logError } from "../utils/logError.ts";
 
-type Role = "user" | "admin";
+type Role = "User" | "Admin";
 
 interface RefreshClaims {
   id: string;
-  username: string;
+  name: string;
   role: Role;
   iat?: number;
   exp?: number;
@@ -28,7 +28,7 @@ export async function refreshAccessToken(req: Request, res: Response){
     const payload = jwt.verify(refresh, refreshSecret) as RefreshClaims;
 
     const accessToken = jwt.sign(
-      { id: payload.id, username: payload.username, role: payload.role }, accessSecret, { expiresIn: "1h" }
+      { id: payload.id, username: payload.name, role: payload.role }, accessSecret, { expiresIn: "1h" }
     );
 
     // Sätt ny access-cookie

@@ -27,7 +27,7 @@ export async function loginUser(req: Request, res: Response): Promise<Response>{
                 { email: email },
                 { username: username }
             ]
-        });
+        }).lean();
         if (!user) {
             winstonLogger.warn("User not found", { status: "not found" });
             return res.status(404).json({ error: "Could not sign in user", success: false });
@@ -39,7 +39,7 @@ export async function loginUser(req: Request, res: Response): Promise<Response>{
             return res.status(401).json({ error: "Could not sign in user", success: false });
         }
 
-        const payload = {id: user._id.toString(), username: user.username, role: user.role};
+        const payload = {id: user._id.toString(), username: user.name, role: user.role};
 
         const refreshToken = jwt.sign(payload, env.REFRESH_TOKEN_SECRET, {expiresIn: "7d"});
         const accessToken =  jwt.sign(payload, env.ACCESS_TOKEN_SECRET, {expiresIn: "1h"});

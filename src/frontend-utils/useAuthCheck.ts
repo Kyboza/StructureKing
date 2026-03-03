@@ -5,7 +5,11 @@ type Role = "None" | "User" | "Admin";
 type AuthRequirement = "None" | "User" | "Admin";
 
 type UseAuthCheckOptions = { require: AuthRequirement };
-export type AuthStatus = { authenticated: boolean; role: Role } | null;
+
+export type AuthStatus =
+  | { authenticated: true; role: Exclude<Role, "None">; username: string }
+  | { authenticated: false; role: "None" }
+  | null;
 
 export function useAuthCheck({ require }: UseAuthCheckOptions): AuthStatus {
   const [status, setStatus] = useState<AuthStatus>(null);
@@ -22,65 +26,69 @@ export function useAuthCheck({ require }: UseAuthCheckOptions): AuthStatus {
           credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ require }),
-          signal, // ✅ kopplar signalen till fetchen
+          signal,
         });
-        
-        // Om token har gått ut → försök refresh
-        if (res.status === 401 || require === "None") {
-          const r = await fetch("http://localhost:3000/api/refreshAccessToken", {
-            method: "POST",
-            credentials: "include",
-          });
 
-          if (r.ok) {
+        // Om access token är ogiltig → försök refresh
+        if (res.status === 401) {
+          const refresh = await fetch(
+            "http://localhost:3000/api/refreshAccessToken",
+            {
+              method: "POST",
+              credentials: "include",
+            }
+          );
+
+          if (refresh.ok) {
             res = await fetch("http://localhost:3000/api/frontendRedirect", {
               method: "POST",
               credentials: "include",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ require }),
-              signal, // ✅ signal även här
+              signal,
             });
           }
         }
 
-        if (res.ok) {
-          const data = (await res.json()) as {
-            authenticated: boolean;
-            role: Role;
-            success: boolean;
-          };
-
-          setStatus({ authenticated: data.authenticated, role: data.role });
-
-          // Redirect: från / → /dashboard om inloggad och require = none
-          if (require === "None" && data.authenticated) {
-            navigate("/dashboard", { replace: true });
+        if (!res.ok) {
+          if (require !== "None") {
+            setStatus({ authenticated: false, role: "None" });
+            navigate("/", { replace: true });
+          } else {
+            setStatus({ authenticated: false, role: "None" });
           }
-
           return;
         }
 
-        // Om sidan kräver auth men fetch misslyckades → markera utloggad och redirect
-        if (require !== "None") {
+        const data = await res.json();
+
+        if (data.authenticated) {
+          setStatus({
+            authenticated: true,
+            role: data.role,
+            username: data.username,
+          });
+
+          // Om man är inloggad och besöker t.ex login-sidan
+          if (require === "None") {
+            navigate("/dashboard", { replace: true });
+          }
+        } else {
           setStatus({ authenticated: false, role: "None" });
-          navigate("/", { replace: true });
         }
       } catch (err: unknown) {
-        // Om fetch avbröts → gör inget
         if ((err as { name?: string }).name === "AbortError") return;
 
-        // Annars: markera utloggad och redirect
         if (require !== "None") {
           setStatus({ authenticated: false, role: "None" });
           navigate("/", { replace: true });
+        } else {
+          setStatus({ authenticated: false, role: "None" });
         }
       }
     })();
 
-    // Cleanup: avbryt fetchen om komponenten unmountas
-    return () => {
-      controller.abort();
-    };
+    return () => controller.abort();
   }, [require, navigate]);
 
   return status;

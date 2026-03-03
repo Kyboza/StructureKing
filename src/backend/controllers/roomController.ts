@@ -36,12 +36,13 @@ export async function postRooms(req: Request, res: Response): Promise<Response> 
     const { name, capacity, type, website } = parsed.data;
     if(website) return res.status(400).json({success: false, error: "Could not create room"})
 
-    const roomAlreadyExist = await Room.findOne({ name });
+    const roomAlreadyExist = await Room.findOne({ name }).lean();
     if (roomAlreadyExist) {
       return res.status(400).json({ success: false, error: "Room already exists" });
     }
 
-    const newRoom = await Room.create({ name, capacity: Number(capacity), type });
+    const newRoomDoc = await Room.create({ name, capacity: Number(capacity), type });
+    const newRoom = { ...newRoomDoc.toObject(), _id: newRoomDoc._id.toString() };
     return res.status(201).json({ success: true, room: newRoom, message: "Room created" });
   } catch (error) {
     logError(error);
@@ -71,13 +72,12 @@ export async function putRooms(req: Request, res: Response): Promise<Response> {
     const updatedRoom = await Room.findByIdAndUpdate(
       roomObjectId,
       { capacity: newCapacity },
-      { new: true, select: "capacity" } // returnerar endast capacity
-    );
+      { returnDocument: "after", select: "capacity" } // returnerar endast capacity
+    ).lean();
 
     if (!updatedRoom) {
       return res.status(404).json({ success: false, error: "Room not found" });
     }
-
     return res.status(200).json({ success: true, roomCapacity: updatedRoom.capacity });
   } catch (error) {
     logError(error);
@@ -99,12 +99,12 @@ export async function deleteRooms(req: Request, res: Response): Promise<Response
 
     const roomObjectId = new Types.ObjectId(roomId);
 
-    const deletedRoom = await Room.findByIdAndDelete(roomObjectId);
+    const deletedRoom = await Room.findByIdAndDelete(roomObjectId).lean();
     if (!deletedRoom) {
       return res.status(404).json({ success: false, error: "Room not found" });
     }
 
-    return res.status(200).json({ success: true, message: "Room deleted", roomId: roomObjectId });
+    return res.status(200).json({ success: true, message: "Room deleted"});
   } catch (error) {
     logError(error);
     winstonLogger.error("Server error during room deletion", { error });

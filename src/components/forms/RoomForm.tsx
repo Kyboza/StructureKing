@@ -86,11 +86,6 @@ const RoomForm = ({onSuccess}: RoomFormProps) => {
     
 
   return (
-     <>
-        <div className="flex justify-center items-center w-full">
-            <h1 className="font-bold italic text-2xl md:text-4xl mt-4">Rooms</h1>
-        </div>
-    
         <form
           className="flex flex-col items-center gap-6 text-letter dark:text-letter-dark h-auto w-full"
           onSubmit={handleSubmit}
@@ -164,7 +159,6 @@ const RoomForm = ({onSuccess}: RoomFormProps) => {
 
           <Button type="submit" label="Create Room" title="Create Room" />
         </form>
-</>
 )
 }
 

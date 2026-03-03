@@ -19,6 +19,8 @@ import frontendRedirectRoute from './routes/frontendRedirectRoute.ts';
 import refreshAccessTokenRoute from './routes/refreshAccessTokenRoute.ts';
 import roomsRoute from './routes/roomRoutes.ts';
 import bookingsRoute from './routes/bookingRoutes.ts';
+import usersRoute from './routes/usersRoute.ts';
+import logoutRoute from './routes/logoutRoute.ts';
 
 import type { Express } from 'express';
 
@@ -43,6 +45,8 @@ const runServer = async () => {
     console.log("Registering routes…");
     app.use("/api/register", ratelimitCheck, noJWTAllowed, registerRoute);
     app.use("/api/login", ratelimitCheck, noJWTAllowed, loginRoute);
+    app.use("/api/logout", ratelimitCheck, verifyJWT, logoutRoute)
+    app.use("/api/users", ratelimitCheck, verifyJWT, verifyAdmin, usersRoute);
 
     app.use("/api/frontendRedirect", ratelimitCheck, frontendRedirectRoute);
     app.use("/api/refreshAccessToken", ratelimitCheck, refreshAccessTokenRoute);

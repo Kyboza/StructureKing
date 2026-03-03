@@ -1,5 +1,31 @@
-// Skapa Middleware JWTverify samt hantera useAuthCheck som hanterar navigering på frontend.
-//Testa om register och login fungerar skapa sedan sidan login success ska ta en till, skapa sedan resten av rooms bokning etc.
+import User from "../database/models/user/user-model.ts";
+import winstonLogger from "../utils/winstonLogger.ts";
+import { logError } from "../utils/logError.ts";
+import type { Request, Response } from "express";
 
+export async function getAllUsers(_req: Request, res: Response): Promise<Response>{
+    try {
+        const users = await User.find().select("name role createdAt").lean();
+        if(users.length === 0) return res.status(404).json({success: false, error: "Users not found"});
+        const normalized = users.map(u => ({...u, _id: u._id.toString()}));
+        return res.status(200).json({success: true, users: normalized, message: "Users returned"});
+    } catch(error){
+        logError(error)
+        winstonLogger.error("Server error during user get", {error});
+        return res.status(500).json({success: false, error: "Server Error"})
+    }
+}
 
-//Hitta varför server.ts inte startar, i home sätta ut vart generalError ska visas samt kolla så login och register flöde fungerar.
+export async function deleteUser(req: Request, res: Response): Promise<Response>{
+    try {
+        const userId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+        if(!userId) return res.status(400).json({success: false, error: "Invalid user id"});
+        const user = await User.findByIdAndDelete(userId);
+        if(!user) return res.status(404).json({success: false, error: "User not found"});
+        return res.status(200).json({success: true, message: "User deleted", userId: user._id});
+    } catch(error){
+        logError(error)
+        winstonLogger.error("Server error during user delete", {error});
+        return res.status(500).json({success: false, error: "Server Error"})
+    }
+}
