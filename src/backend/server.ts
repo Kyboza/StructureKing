@@ -7,7 +7,6 @@ import express from 'express'
 import { Server } from 'socket.io'
 
 import { connectToDatabase } from './clients/db.ts'
-import { allowedOrigins } from './config/allowedOrigins.ts'
 import { corsOptions } from './config/corsOptions.ts'
 import { noJWTAllowed } from './middleware/auth/noJWTAllowed.ts'
 import { verifyAdmin } from './middleware/auth/verifyAdmin.ts'
@@ -27,7 +26,14 @@ import { env } from './validation/zod.config-server.ts'
 import type { Express } from 'express'
 
 export const io = new Server({
-    cors: { origin: allowedOrigins, methods: ['GET', 'POST'] },
+  cors: {
+    origin: [
+      "https://www.johanclifford.com", // frontend domän
+      "https://johanclifford.com",     // om du vill tillåta root
+    ],
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
 })
 const runServer = async () => {
 
