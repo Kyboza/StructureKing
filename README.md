@@ -1,73 +1,63 @@
-# React + TypeScript + Vite
+# Structure King - Book Workstations or Conference Rooms
+StructureKing enables users to easily book workstations or conference rooms.
+The website fulfills that purpose in a simple and easy way.
+It allows users to see which rooms are available and which ones have already been booked.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Run Project Locally
+To run this project locally follow these steps
+1. Download the project
+2. Extract the contents of the downloaded ZIP file.
+3. Open the project folder in your preferred IDE.
+4. Open a terminal in the project directory and run: `npm install`.
+5. Start the development server by running: `npm run dev`.
+6. Open your browser and navigate to the provided local URL
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Api Documentation
 
-## React Compiler
+## Authentication & Users
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Endpoint              | Method | Description                     | Middleware                   |
+|----------------------|--------|---------------------------------|------------------------------|
+| `/register`           | POST   | Register a new user             | ratelimitCheck, noJWTAllowed |
+| `/login`              | POST   | Login a user                    | ratelimitCheck, noJWTAllowed |
+| `/logout`             | DELETE | Logout the current user         | ratelimitCheck, verifyJWT    |
+| `/refreshAccessToken` | POST   | Refresh JWT access token        | ratelimitCheck               |
+| `/users`              | GET    | Get all users (admin only)      | ratelimitCheck, verifyJWT, verifyAdmin |
+| `/users/:id`          | DELETE | Delete a user (admin only)      | ratelimitCheck, verifyJWT, verifyAdmin |
 
-## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Rooms
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+| Endpoint      | Method | Description                  | Middleware                   |
+|---------------|--------|------------------------------|------------------------------|
+| `/rooms`       | GET    | Get all rooms                | ratelimitCheck, verifyJWT    |
+| `/rooms`       | POST   | Create a new room (admin)    | ratelimitCheck, verifyJWT, verifyAdmin |
+| `/rooms/:id`   | PUT    | Update room capacity (admin) | ratelimitCheck, verifyJWT, verifyAdmin |
+| `/rooms/:id`   | DELETE | Delete a room (admin)        | ratelimitCheck, verifyJWT, verifyAdmin |
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Bookings
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+| Endpoint         | Method | Description                     | Middleware                |
+|-----------------|--------|---------------------------------|---------------------------|
+| `/bookings`      | GET    | Get all bookings                 | ratelimitCheck, verifyJWT |
+| `/bookings/:id`  | GET    | Get bookings for a user          | ratelimitCheck, verifyJWT |
+| `/bookings`      | POST   | Create a new booking             | ratelimitCheck, verifyJWT |
+| `/bookings/:id`  | PUT    | Update an existing booking       | ratelimitCheck, verifyJWT |
+| `/bookings/:id`  | DELETE | Delete a booking                 | ratelimitCheck, verifyJWT |
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Frontend Authentication Check
+
+| Endpoint               | Method | Description                                                                                | Middleware      |
+|------------------------|--------|------------------------------------------------------------------------------------------- |-----------------|
+| `/frontendRedirect`    | POST   | Check auth status and role for front-end, also refreshes "access_token" if it is missing.  | ratelimitCheck  |
+
+
+### Notes
+- Most endpoints require JWT authentication.  
+- Admin privileges are required for user management and room management actions.  
+- Requests/Responses are in JSON format.  
+- Rate limiting is applied to all endpoints.
+

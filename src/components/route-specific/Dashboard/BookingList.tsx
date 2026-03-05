@@ -18,7 +18,6 @@ type BookingsListProps = {
 {/*Fixa Redis, IO Socket samt winston logs där det behövdes sedan 1 test med jest kanske sedan börjar göra README och presentation sedan lektionsuppgifter */}
 
 const BookingsList = ({ refreshKey, currentUser }: BookingsListProps) => {
-    console.log(currentUser)
   const [bookings, setBookings] = useState<ReturnedBookingsType[]>([]);
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [successMsg, setSuccessMsg] = useState<string>("");
@@ -34,7 +33,6 @@ const BookingsList = ({ refreshKey, currentUser }: BookingsListProps) => {
           signal,
           credentials: "include",
         });
-
         if (!res.ok) {
           setErrorMsg("Could not fetch bookings");
           setBookings([]);
@@ -42,6 +40,7 @@ const BookingsList = ({ refreshKey, currentUser }: BookingsListProps) => {
         }
 
         const data = await res.json();
+        console.log(data)
 
         if (data.success) {
           const bookingsWithDates: ReturnedBookingsType[] =
@@ -54,7 +53,7 @@ const BookingsList = ({ refreshKey, currentUser }: BookingsListProps) => {
           setErrorMsg(data.error ?? "Could not fetch bookings");
         }
       } catch (err) {
-        if (err instanceof DOMException && err.name === "AbortError") return;
+        if (err instanceof DOMException && err.name === "AbortError")
         setErrorMsg("Server error fetching bookings");
         setBookings([]);
       }

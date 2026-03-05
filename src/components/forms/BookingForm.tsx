@@ -92,6 +92,7 @@ const BookingForm = ({ onSuccess }: BookingFormProps) => {
       }
 
       setSuccessMsg(data.message);
+      console.log("onSuccess called")
       if (onSuccess) onSuccess();
       setTimeout(() => setSuccessMsg(""), 1500);
     } catch {
@@ -102,8 +103,9 @@ const BookingForm = ({ onSuccess }: BookingFormProps) => {
   return (
     <form className="flex flex-col gap-4 w-full" onSubmit={handleSubmit}>
       <div className="flex flex-col gap-2">
-        <label className="font-semibold">Select Room:</label>
+        <label htmlFor="form-select" className="font-semibold">Select Room:</label>
         <select
+          id="form-select"
           value={selectedRoomId}
           onChange={e => setSelectedRoomId(e.target.value)}
           className="border rounded-md p-2 w-full"

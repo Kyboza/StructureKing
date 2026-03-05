@@ -1,3 +1,5 @@
+import http from 'http'
+import {Server} from 'socket.io'
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -24,11 +26,14 @@ import logoutRoute from './routes/logoutRoute.ts';
 
 import type { Express } from 'express';
 
+export const io = new Server({cors: {origin: "http://localhost:5173", methods: ["GET", "POST"]}});
 const runServer = async () => {
   console.log("Starting server…");
 
   try {
     const app: Express = express();
+    const server = http.createServer(app);
+    io.attach(server)
 
     console.log("Connecting to database…");
     await connectToDatabase();
@@ -51,11 +56,11 @@ const runServer = async () => {
     app.use("/api/frontendRedirect", ratelimitCheck, frontendRedirectRoute);
     app.use("/api/refreshAccessToken", ratelimitCheck, refreshAccessTokenRoute);
 
-    app.use("/api/rooms", ratelimitCheck, verifyJWT, verifyAdmin, roomsRoute);
+    app.use("/api/rooms", ratelimitCheck, verifyJWT, roomsRoute);
     app.use("/api/bookings", ratelimitCheck, verifyJWT, bookingsRoute);
 
     // Start server
-    app.listen(env.PORT, () => {
+    server.listen(env.PORT, () => {
       console.log(`App is running on PORT: ${env.PORT} 🚀`);
     });
   } catch (error) {
