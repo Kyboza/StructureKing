@@ -1,7 +1,9 @@
 import express from 'express'
-const router = express.Router();
-import { refreshAccessToken } from '../controllers/refreshAccessTokenController.ts';
 
-router.post("/", refreshAccessToken)
+import { refreshAccessToken } from '../controllers/refreshAccessTokenController.ts'
 
-export default router;
+const router = express.Router()
+
+router.post('/', refreshAccessToken)
+
+export default router

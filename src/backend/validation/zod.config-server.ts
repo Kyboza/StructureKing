@@ -1,35 +1,60 @@
-import dotenv from "dotenv"
-dotenv.config();
 
-import { z } from "zod";
-import { logError } from "../utils/logError.ts";
+import path from 'path'
+import { fileURLToPath } from 'url'
 
+import dotenv from 'dotenv'
+import { z } from 'zod'
+
+import { logError } from '../utils/logError.ts'
+
+// ESM-fix för __dirname och __filename
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// Hitta projekt-roten (där package.json ligger)
+const projectRoot = path.resolve(__dirname, '../../../')
+
+// Välj rätt .env-fil baserat på NODE_ENV
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development'
+const envPath = path.resolve(projectRoot, envFile)
+
+// Ladda .env-filen
+dotenv.config({ 
+    path: envPath,
+    debug: false
+})
+
+// Din zod-schema
 const baseServerEnvSchema = z.object({
-    PORT: z.coerce.number().min(1, "PORT Saknas"),
-    MONGODB_URI: z.string().min(1, "MONGODB_URI Saknas"),
-    SENTRY_DSN: z.string().min(1, "SENTRY DSN Saknas"),
-    ACCESS_TOKEN_SECRET: z.string().min(1, "ACCESS_TOKEN_SECRET Saknas"),
-    REFRESH_TOKEN_SECRET: z.string().min(1, "REFRESH_TOKEN_SECRET Saknas"),
-    PEPPER_SECRET: z.string().min(1, "PEPPER_SECRET Saknas"),
-});
+    PORT: z.coerce.number().min(1, 'PORT Saknas'),
+    MONGODB_URI: z.string().min(1, 'MONGODB_URI Saknas'),
+    SENTRY_DSN: z.string().min(1, 'SENTRY DSN Saknas'),
+    ACCESS_TOKEN_SECRET: z.string().min(1, 'ACCESS_TOKEN_SECRET Saknas'),
+    REFRESH_TOKEN_SECRET: z.string().min(1, 'REFRESH_TOKEN_SECRET Saknas'),
+    PEPPER_SECRET: z.string().min(1, 'PEPPER_SECRET Saknas'),
+    VITE_BASE_PATH: z.string().min(1, 'VITE_BASE_PATH Saknas'),
+    VITE_API_URL: z.string().min(1, 'VITE_API_URL Saknas'),
+})
 
-const isTest = process.env.NODE_ENV === "test";
+const isTest = process.env.NODE_ENV === 'test'
 
 const serverEnvSchema = isTest
-  ? baseServerEnvSchema.partial()
-  : baseServerEnvSchema;
+    ? baseServerEnvSchema.partial()
+    : baseServerEnvSchema
 
-const parsed = serverEnvSchema.safeParse(process.env);
+const parsed = serverEnvSchema.safeParse(process.env)
 
 if (!parsed.success) {
-  const formattedErrors = z.flattenError(parsed.error);
-  logError("Ogiltiga miljövariabler");
-
-  for (const [key, error] of Object.entries(formattedErrors.fieldErrors)) {
-    logError(`- ${key}: ${error?.join(", ")}`);
-  }
-
-  process.exit(1);
+    const formattedErrors = parsed.error.flatten()
+    
+    for (const [key, errors] of Object.entries(formattedErrors.fieldErrors)) {
+        if (errors && errors.length > 0) {
+            logError(`- ${key}: ${errors.join(', ')}`)
+        }
+    }
+    
+    logError('Ogiltiga miljövariabler')
+    process.exit(1)
 }
 
-export const env = parsed.data as z.infer<typeof baseServerEnvSchema>;
+export const env = parsed.data as z.infer<typeof baseServerEnvSchema>

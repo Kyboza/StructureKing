@@ -1,7 +1,9 @@
 import express from 'express'
-const router = express.Router();
-import { registerUser } from '../controllers/registerController.ts';
 
-router.post("/", registerUser)
+import { registerUser } from '../controllers/registerController.ts'
 
-export default router;
+const router = express.Router()
+
+router.post('/', registerUser)
+
+export default router

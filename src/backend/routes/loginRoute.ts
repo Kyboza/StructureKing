@@ -1,6 +1,9 @@
 import express from 'express'
-const router = express.Router();
-import { loginUser } from '../controllers/loginController.ts';
-router.post("/", loginUser)
 
-export default router;
+import { loginUser } from '../controllers/loginController.ts'
+
+const router = express.Router()
+
+router.post('/', loginUser)
+
+export default router
