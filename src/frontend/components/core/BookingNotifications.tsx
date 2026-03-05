@@ -3,7 +3,9 @@ import { useEffect } from 'react'
 import { io as socketClient } from 'socket.io-client'
 import { toast } from 'sonner'
 
-const socket = socketClient(`${import.meta.env.VITE_API_URL}`)
+const socket = socketClient(`${import.meta.env.VITE_API_URL}`, {
+    withCredentials: true
+})
 
 export default function BookingNotifications() {
     useEffect(() => {
