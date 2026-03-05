@@ -7,24 +7,20 @@ import { z } from 'zod'
 
 import { logError } from '../utils/logError.ts'
 
-// ESM-fix för __dirname och __filename
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// Hitta projekt-roten (där package.json ligger)
 const projectRoot = path.resolve(__dirname, '../../../')
 
-// Välj rätt .env-fil baserat på NODE_ENV
 const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development'
 const envPath = path.resolve(projectRoot, envFile)
 
-// Ladda .env-filen
 dotenv.config({ 
     path: envPath,
     debug: false
 })
 
-// Din zod-schema
+
 const baseServerEnvSchema = z.object({
     PORT: z.coerce.number().min(1, 'PORT Saknas'),
     MONGODB_URI: z.string().min(1, 'MONGODB_URI Saknas'),
