@@ -66,7 +66,7 @@ const runServer = async () => {
     app.use(express.static(path.join(__dirname, "../dist/frontend")))
 
     // Catch-all för React Router
-    app.get("*", (req, res) => {
+    app.get("*", (_req, res) => {
       res.sendFile(path.join(__dirname, "../dist/frontend/index.html"))
     })
 
