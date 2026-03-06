@@ -1,14 +1,9 @@
-// LÄGG TILL DENNA HÖGST UPP (efter imports)
-console.log('🔍 Kollar miljövariabler...')
-console.log('NODE_ENV:', process.env.NODE_ENV)
-console.log('PORT:', process.env.PORT)
-console.log('MONGODB_URI finns:', !!process.env.MONGODB_URI)
-console.log('ALLA tillgängliga env keys:', Object.keys(process.env).filter(key => 
-  !key.includes('npm_') && !key.includes('_') && key.length < 20
-))
+
+
 
 import http from 'http'
 import path from 'path'
+import { fileURLToPath } from 'url'
 
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
@@ -34,17 +29,21 @@ import { logError } from './utils/logError.js'
 
 import type { Express } from 'express'
 
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
 export let io: Server
 
 const runServer = async () => {
   try {
+    console.log('🚀 STARTAR SERVER...')
+    
     const app: Express = express()
     const server = http.createServer(app)
     
-    // Sätt CORS-headers för ALLA requests (även innan annan middleware)
+    // Sätt CORS-headers för ALLA requests
     app.use((req, res, next) => {
       const origin = req.headers.origin
-      console.log('Incoming request:', req.method, req.url, 'Origin:', origin)
       
       if (origin && allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin)
@@ -53,16 +52,14 @@ const runServer = async () => {
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
       }
       
-      // Hantera OPTIONS requests direkt
       if (req.method === 'OPTIONS') {
-        console.log('OPTIONS request - returning 200')
         return res.sendStatus(200)
       }
       
       next()
     })
 
-    // Initiera Socket.IO med explicit CORS
+    // Initiera Socket.IO
     io = new Server(server, {
       cors: {
         origin: allowedOrigins,
@@ -75,7 +72,6 @@ const runServer = async () => {
       path: '/socket.io/'
     })
 
-    // Socket.IO connection logging
     io.on('connection', (socket) => {
       console.log('🟢 Socket.IO ansluten:', socket.id)
       socket.on('disconnect', () => {
@@ -85,14 +81,12 @@ const runServer = async () => {
 
     // await connectToDatabase()
 
-    // Vanlig CORS middleware som backup
     app.use(cors(corsOptions))
-    
     app.use(cookieParser())
     app.use(express.json())
     app.use(express.urlencoded({ extended: false }))
 
-    // Test endpoint för att verifiera CORS
+    // Test endpoint
     app.get('/api/test', (req, res) => {
       res.json({ message: 'CORS fungerar!', origin: req.headers.origin })
     })
@@ -107,7 +101,10 @@ const runServer = async () => {
     app.use('/api/rooms', ratelimitCheck, verifyJWT, roomsRoute)
     app.use('/api/bookings', ratelimitCheck, verifyJWT, bookingsRoute)
 
-    const frontendDistPath = path.join(__dirname, "../dist/frontend")
+    // Statisk filserver - relativ till backend-mappen
+    const frontendDistPath = path.resolve(__dirname, '../../frontend/dist')
+    console.log('📁 Statisk mapp sökväg:', frontendDistPath)
+    
     app.use(express.static(frontendDistPath))
 
     app.get("*", (req, res, next) => {
@@ -123,10 +120,18 @@ const runServer = async () => {
       console.log(`📋 CORS tillåter origins:`, allowedOrigins)
       console.log(`🔌 Socket.IO path: /socket.io/`)
     })
+
+    // Förhindra omstarter
+    process.on('uncaughtException', (error) => {
+      console.error('❌ Oväntat fel:', error)
+    })
+
   } catch (error) {
+    console.error('❌ Server start misslyckades:', error)
     logError(error)
     process.exit(1)
   }
 }
 
+// Starta servern
 runServer()
