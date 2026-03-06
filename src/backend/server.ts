@@ -62,13 +62,13 @@ const runServer = async () => {
     app.use('/api/rooms', ratelimitCheck, verifyJWT, roomsRoute)
     app.use('/api/bookings', ratelimitCheck, verifyJWT, bookingsRoute)
 
-    // Serve frontend build (Vite/React)
-    app.use(express.static(path.join(__dirname, "../dist/frontend")))
+  const frontendDistPath = path.join(__dirname, "../dist/frontend")
+app.use(express.static(frontendDistPath))
 
-    // Catch-all för React Router
-    app.get("*", (_req, res) => {
-      res.sendFile(path.join(__dirname, "../dist/frontend/index.html"))
-    })
+// Alla icke-API routes skickas till index.html
+app.get("*", (_req, res) => {
+  res.sendFile(path.join(frontendDistPath, "index.html"))
+})
 
     // PORT från env (Railway sätter detta automatiskt)
     const PORT = process.env.PORT || 3000
