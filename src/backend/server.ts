@@ -115,11 +115,11 @@ const runServer = async () => {
 
     // VIKTIGT: Ändrat från "*" till "/*"
     app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api/') || req.path.startsWith('/socket.io/')) {
-    return next()
-  }
-  res.sendFile(path.join(frontendDistPath, "index.html"))
-})
+      if (req.path.startsWith('/api/')) {
+        return next()
+      }
+      res.sendFile(path.join(frontendDistPath, "index.html"))
+    })
 
     const PORT = process.env.PORT || 3000
     server.listen(PORT, () => {
