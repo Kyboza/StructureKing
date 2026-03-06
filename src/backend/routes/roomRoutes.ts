@@ -6,7 +6,7 @@ import {
     postRooms,
     putRooms,
 } from '../controllers/roomController.ts'
-import { verifyAdmin } from '../middleware/auth/verifyAdmin.ts'
+import { verifyAdmin } from '../middleware/auth/verifyAdmin'
 
 const router = express.Router()
 

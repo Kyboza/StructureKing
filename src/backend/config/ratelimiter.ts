@@ -1,6 +1,6 @@
 import { Ratelimit } from '@upstash/ratelimit'
 
-import { redis } from '../clients/upstash-redis-client.ts'
+import { redis } from '../clients/upstash-redis-client'
 
 export const rateLimiter = new Ratelimit({
     redis,

@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 
-import { logError } from '../utils/logError.ts'
-import { env } from '../validation/zod.config-server.ts'
+import { logError } from '../utils/logError'
+import { env } from '../validation/zod.config-server'
 
 import type { Request, Response } from 'express'
 

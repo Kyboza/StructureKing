@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { refreshAccessToken } from '../controllers/refreshAccessTokenController.ts'
+import { refreshAccessToken } from '../controllers/refreshAccessTokenController'
 
 const router = express.Router()
 

@@ -1,10 +1,10 @@
 import { Types } from 'mongoose'
 
-import { redis } from '../clients/upstash-redis-client.ts'
-import Booking from '../database/models/booking/booking-model.ts'
-import { io } from '../server.ts'
-import { logError } from '../utils/logError.ts'
-import winstonLogger from '../utils/winstonLogger.ts'
+import { redis } from '../clients/upstash-redis-client'
+import Booking from '../database/models/booking/booking-model'
+import { io } from '../server'
+import { logError } from '../utils/logError'
+import winstonLogger from '../utils/winstonLogger'
 
 import type { Request, Response } from 'express'
 

@@ -1,7 +1,7 @@
 // TypeScript
 
-import { rateLimiter } from '../../config/ratelimiter.ts'
-import { logError } from '../../utils/logError.ts'
+import { rateLimiter } from '../../config/ratelimiter'
+import { logError } from '../../utils/logError'
 
 import type { NextFunction, Request, Response } from 'express'
 

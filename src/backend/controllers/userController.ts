@@ -1,7 +1,7 @@
 
-import User from '../database/models/user/user-model.ts'
-import { logError } from '../utils/logError.ts'
-import winstonLogger from '../utils/winstonLogger.ts'
+import User from '../database/models/user/user-model'
+import { logError } from '../utils/logError'
+import winstonLogger from '../utils/winstonLogger'
 
 import type { Request, Response } from 'express'
 

@@ -6,7 +6,7 @@ import {
     getUserBookings,
     postBookings,
     putBookings,
-} from '../controllers/bookingController.ts'
+} from '../controllers/bookingController'
 
 const router = express.Router()
 

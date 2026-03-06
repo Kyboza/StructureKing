@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
-import { logError } from '../utils/logError.ts'
-import { env } from '../validation/zod.config-server.ts'
+import { logError } from '../utils/logError'
+import { env } from '../validation/zod.config-server'
 
 
 export async function connectToDatabase() {
