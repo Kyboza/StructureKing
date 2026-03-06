@@ -72,7 +72,7 @@ const runServer = async () => {
 
     // Statisk filserver
     const frontendDistPath = path.resolve(__dirname, '../../frontend/dist')
-    console.log('📁 Statisk mapp sökväg:', frontendDistPath)
+
     
     // Kontrollera om mappen finns
     app.use(express.static(frontendDistPath))

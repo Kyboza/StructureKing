@@ -42,7 +42,7 @@ export async function refreshAccessToken(req: Request, res: Response) {
         res.cookie('access_token', accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'none',
             path: '/',
             maxAge: 60 * 60 * 1000,
         })
