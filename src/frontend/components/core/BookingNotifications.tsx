@@ -1,25 +1,48 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
-import { io as socketClient } from 'socket.io-client'
+import { io as socketClient, Socket } from 'socket.io-client'
 import { toast } from 'sonner'
 
-const socket = socketClient(`${import.meta.env.VITE_API_URL}`, {
-    withCredentials: true
-})
-
 export default function BookingNotifications() {
+    const socketRef = useRef<Socket | null>(null)
+
     useEffect(() => {
+        // Skapa socket-anslutningen endast en gång
+        if (!socketRef.current) {
+            socketRef.current = socketClient(`${import.meta.env.VITE_API_URL}`, {
+                withCredentials: true,
+                transports: ['polling', 'websocket'],
+                path: '/socket.io/',
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000
+            })
+
+            socketRef.current.on('connect', () => {
+                console.log('Socket.IO ansluten!', socketRef.current?.id)
+            })
+
+            socketRef.current.on('connect_error', (error) => {
+                console.error('Socket.IO anslutningsfel:', error.message)
+                toast.error('Anslutningsfel till server')
+            })
+        }
+
+        const socket = socketRef.current
+
         const handlePostBooking = (data: { message: string }) => {
-            toast(`${data.message}`)
+            toast.success(data.message)
         }
 
         const handleEditBooking = (data: { message: string }) => {
-            toast(`${data.message}`)
+            toast.info(data.message)
         }
 
         const handleDeleteBooking = (data: { message: string }) => {
-            toast(`${data.message}`, {
-                classNames: { actionButton: 'bg-primary', toast: 'bg-primary' },
+            toast.error(data.message, {
+                classNames: { 
+                    actionButton: 'bg-primary', 
+                    toast: 'bg-primary' 
+                }
             })
         }
 

@@ -25,30 +25,43 @@ import { logError } from './utils/logError.js'
 
 import type { Express } from 'express'
 
-// Socket.IO-server med CORS
-export const io = new Server({
-  cors: {
-    origin: allowedOrigins,
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-  allowEIO3: true
-})
+// Vi deklarerar io här men initierar den senare med servern
+export let io: Server
 
 const runServer = async () => {
   try {
     const app: Express = express()
     const server = http.createServer(app)
-    io.attach(server)
+    
+    // Initiera Socket.IO med servern och korrekt CORS-konfiguration
+    io = new Server(server, {
+      cors: {
+        origin: allowedOrigins,
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        credentials: true,
+        allowedHeaders: ["Content-Type", "Authorization"]
+      },
+      transports: ['polling', 'websocket'], // Börja med polling för bättre kompatibilitet
+      allowEIO3: true,
+      path: '/socket.io/'
+    })
 
     // Koppla till databasen
     await connectToDatabase()
 
-    // Middleware
+    // Middleware - CORS först, och hantera preflight requests explicit
     app.use(cors(corsOptions))
+    app.options('*', cors(corsOptions)) // Explicit hantering av OPTIONS requests
+    
     app.use(cookieParser())
     app.use(express.json())
     app.use(express.urlencoded({ extended: false }))
+
+    // Logga inkommande requests för debugging (ta bort i produktion om du vill)
+    app.use((req, _res, next) => {
+      console.log(`${req.method} ${req.path} - Origin: ${req.get('origin') || 'ingen origin'}`)
+      next()
+    })
 
     // API-routes
     app.use('/api/register', ratelimitCheck, noJWTAllowed, registerRoute)
@@ -60,17 +73,23 @@ const runServer = async () => {
     app.use('/api/rooms', ratelimitCheck, verifyJWT, roomsRoute)
     app.use('/api/bookings', ratelimitCheck, verifyJWT, bookingsRoute)
 
-  const frontendDistPath = path.join(__dirname, "../dist/frontend")
-app.use(express.static(frontendDistPath))
+    // Statisk filserver för frontend
+    const frontendDistPath = path.join(__dirname, "../dist/frontend")
+    app.use(express.static(frontendDistPath))
 
-// Alla icke-API routes skickas till index.html
-app.get("*", (_req, res) => {
-  res.sendFile(path.join(frontendDistPath, "index.html"))
-})
+    // Alla icke-API routes skickas till index.html
+    app.get("*", (req, res, next) => {
+      // Undvik att fånga API-routes
+      if (req.path.startsWith('/api/')) {
+        return next()
+      }
+      res.sendFile(path.join(frontendDistPath, "index.html"))
+    })
 
     // PORT från env (Railway sätter detta automatiskt)
     const PORT = process.env.PORT || 3000
-    server.listen(PORT, () => console.log(`Server listening on port ${PORT}`))
+    server.listen(PORT)
+
   } catch (error) {
     logError(error)
     process.exit(1)
