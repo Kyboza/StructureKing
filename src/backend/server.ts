@@ -28,8 +28,8 @@ import type { Express } from 'express'
 export const io = new Server({
   cors: {
     origin: [
-      "https://www.johanclifford.com", // frontend domän
-      "https://johanclifford.com",     // om du vill tillåta root
+      "https://www.johanclifford.com", 
+      "https://johanclifford.com",     
     ],
     methods: ["GET", "POST"],
     credentials: true,
@@ -74,7 +74,6 @@ const runServer = async () => {
 
 }
      catch (error) {
-      
         logError(error)
         process.exit(1)
     }
