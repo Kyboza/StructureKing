@@ -33,8 +33,7 @@
     "@types/cors": "^2.8.19",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.11.0",
-    "@types/bcrypt": "^6.0.0",
-    "@types/socket.io": "^4.8.4"
+    "@types/bcrypt": "^6.0.0"
   },
   "engines": {
     "node": "20.x"
