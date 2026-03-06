@@ -1,22 +1,24 @@
+// src/frontend/vite.config.ts
 import path from "path"
 
 import tailwindcss from "@tailwindcss/vite"
 import react from "@vitejs/plugin-react"
 import { defineConfig, loadEnv } from "vite"
 
-
-
-
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd())
 
   return {
-    plugins: [tailwindcss(), react()],
+    plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
-       "@": path.resolve(__dirname, "src")
+        "@": path.resolve(__dirname), // @ -> src/frontend
       },
     },
     base: env.VITE_BASE_PATH || "/",
+    build: {
+      outDir: "dist", // bygg till dist i frontend-mappen
+      emptyOutDir: true,
+    },
   }
 })
