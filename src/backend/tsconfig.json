@@ -4,11 +4,11 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "outDir": "dist",
-    "rootDir": ".",       // <-- ändrat från "src"
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["**/*.ts"]   // <-- relative paths från src/backend
+  "include": ["**/*.ts"]
 }

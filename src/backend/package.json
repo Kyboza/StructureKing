@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon --watch src/backend --ext ts,js --exec \"ts-node src/backend/server.ts\"",
-   "build": "cross-env NODE_ENV=production tsc -b src/backend/tsconfig.json",
-    "start": "cross-env NODE_ENV=production node src/backend/dist/server.js"
+    "dev": "cross-env NODE_ENV=development nodemon --watch . --ext ts,js --exec \"ts-node server.ts\"",
+    "build": "cross-env NODE_ENV=production tsc -b tsconfig.json",
+    "start": "cross-env NODE_ENV=production node dist/server.js"
   },
   "dependencies": {
     "express": "^5.2.1",
