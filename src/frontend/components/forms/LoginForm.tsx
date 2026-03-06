@@ -75,8 +75,7 @@ const LoginForm = () => {
             setTimeout(() => {
                 navigate('/dashboard')
             }, 1500)
-        } catch (err) {
-            console.error('Login error:', err)
+        } catch {
             setGeneralLoginError('Server error. Please try again later.')
         }
     }

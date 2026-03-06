@@ -17,14 +17,6 @@ export default function BookingNotifications() {
                 reconnectionDelay: 1000
             })
 
-            socketRef.current.on('connect', () => {
-                console.log('Socket.IO ansluten!', socketRef.current?.id)
-            })
-
-            socketRef.current.on('connect_error', (error) => {
-                console.error('Socket.IO anslutningsfel:', error.message)
-                toast.error('Anslutningsfel till server')
-            })
         }
 
         const socket = socketRef.current

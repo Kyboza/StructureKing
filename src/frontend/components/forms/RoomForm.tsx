@@ -79,8 +79,7 @@ const RoomForm = ({ onSuccess }: RoomFormProps) => {
             setTimeout(() => {
                 setSuccessMessage('')
             }, 1500)
-        } catch (error) {
-            console.error('Error during room creation:', error)
+        } catch  {
             setGeneralError('Server error. Please try again later.')
         }
     }

@@ -85,8 +85,7 @@ const RegisterForm = ({
                     onRegisterSuccess()
                 }
             }, 1500)
-        } catch (err) {
-            console.error('Error during registration:', err)
+        } catch  {
             setGeneralRegisterError('Server error. Please try again later.')
         }
     }
