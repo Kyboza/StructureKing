@@ -25,7 +25,6 @@ import { logError } from './utils/logError.js'
 
 import type { Express } from 'express'
 
-// Vi deklarerar io här men initierar den senare med servern
 export let io: Server
 
 const runServer = async () => {
@@ -33,7 +32,28 @@ const runServer = async () => {
     const app: Express = express()
     const server = http.createServer(app)
     
-    // Initiera Socket.IO med servern och korrekt CORS-konfiguration
+    // Sätt CORS-headers för ALLA requests (även innan annan middleware)
+    app.use((req, res, next) => {
+      const origin = req.headers.origin
+      console.log('Incoming request:', req.method, req.url, 'Origin:', origin)
+      
+      if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin)
+        res.setHeader('Access-Control-Allow-Credentials', 'true')
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
+      }
+      
+      // Hantera OPTIONS requests direkt
+      if (req.method === 'OPTIONS') {
+        console.log('OPTIONS request - returning 200')
+        return res.sendStatus(200)
+      }
+      
+      next()
+    })
+
+    // Initiera Socket.IO med explicit CORS
     io = new Server(server, {
       cors: {
         origin: allowedOrigins,
@@ -41,26 +61,31 @@ const runServer = async () => {
         credentials: true,
         allowedHeaders: ["Content-Type", "Authorization"]
       },
-      transports: ['polling', 'websocket'], // Börja med polling för bättre kompatibilitet
+      transports: ['polling', 'websocket'],
       allowEIO3: true,
       path: '/socket.io/'
     })
 
-    // Koppla till databasen
+    // Socket.IO connection logging
+    io.on('connection', (socket) => {
+      console.log('🟢 Socket.IO ansluten:', socket.id)
+      socket.on('disconnect', () => {
+        console.log('🔴 Socket.IO frånkopplad:', socket.id)
+      })
+    })
+
     await connectToDatabase()
 
-    // Middleware - CORS först, och hantera preflight requests explicit
+    // Vanlig CORS middleware som backup
     app.use(cors(corsOptions))
-    app.options('*', cors(corsOptions)) // Explicit hantering av OPTIONS requests
     
     app.use(cookieParser())
     app.use(express.json())
     app.use(express.urlencoded({ extended: false }))
 
-    // Logga inkommande requests för debugging (ta bort i produktion om du vill)
-    app.use((req, _res, next) => {
-      console.log(`${req.method} ${req.path} - Origin: ${req.get('origin') || 'ingen origin'}`)
-      next()
+    // Test endpoint för att verifiera CORS
+    app.get('/api/test', (req, res) => {
+      res.json({ message: 'CORS fungerar!', origin: req.headers.origin })
     })
 
     // API-routes
@@ -73,23 +98,22 @@ const runServer = async () => {
     app.use('/api/rooms', ratelimitCheck, verifyJWT, roomsRoute)
     app.use('/api/bookings', ratelimitCheck, verifyJWT, bookingsRoute)
 
-    // Statisk filserver för frontend
     const frontendDistPath = path.join(__dirname, "../dist/frontend")
     app.use(express.static(frontendDistPath))
 
-    // Alla icke-API routes skickas till index.html
     app.get("*", (req, res, next) => {
-      // Undvik att fånga API-routes
       if (req.path.startsWith('/api/')) {
         return next()
       }
       res.sendFile(path.join(frontendDistPath, "index.html"))
     })
 
-    // PORT från env (Railway sätter detta automatiskt)
     const PORT = process.env.PORT || 3000
-    server.listen(PORT)
-
+    server.listen(PORT, () => {
+      console.log(`🚀 Server listening on port ${PORT}`)
+      console.log(`📋 CORS tillåter origins:`, allowedOrigins)
+      console.log(`🔌 Socket.IO path: /socket.io/`)
+    })
   } catch (error) {
     logError(error)
     process.exit(1)
