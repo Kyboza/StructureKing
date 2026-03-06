@@ -1,3 +1,12 @@
+// LÄGG TILL DENNA HÖGST UPP (efter imports)
+console.log('🔍 Kollar miljövariabler...')
+console.log('NODE_ENV:', process.env.NODE_ENV)
+console.log('PORT:', process.env.PORT)
+console.log('MONGODB_URI finns:', !!process.env.MONGODB_URI)
+console.log('ALLA tillgängliga env keys:', Object.keys(process.env).filter(key => 
+  !key.includes('npm_') && !key.includes('_') && key.length < 20
+))
+
 import http from 'http'
 import path from 'path'
 
@@ -6,7 +15,7 @@ import cors from 'cors'
 import express from 'express'
 import { Server } from 'socket.io'
 
-import { connectToDatabase } from './clients/db.js'
+// import { connectToDatabase } from './clients/db.js'
 import { allowedOrigins } from './config/allowedOrigins.js'
 import { corsOptions } from './config/corsOptions.js'
 import { noJWTAllowed } from './middleware/auth/noJWTAllowed.js'
@@ -74,7 +83,7 @@ const runServer = async () => {
       })
     })
 
-    await connectToDatabase()
+    // await connectToDatabase()
 
     // Vanlig CORS middleware som backup
     app.use(cors(corsOptions))
