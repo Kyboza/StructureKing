@@ -1,10 +1,9 @@
 import { Outlet } from 'react-router-dom'
 
-import Footer from '@/frontend/components/core/Footer'
-import Header from '@/frontend/components/core/Header'
-
-import BookingNotifications from '@/frontend/components/core/BookingNotifications'
-import { Toaster } from '@/frontend/components/ui/sonner'
+import BookingNotifications from '../components/core/BookingNotifications'
+import Footer from '../components/core/Footer'
+import Header from '../components/core/Header'
+import { Toaster } from '../components/ui/sonner'
 
 
 export const AppLayout = () => {

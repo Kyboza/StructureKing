@@ -1,10 +1,9 @@
 import { useState } from 'react'
 
-import { roomsSchema } from '@/backend/validation/zod-schemas'
-
+import { roomsSchema } from '../../validation/zod-schemas'
 import Button from '../reusable/Button'
 
-import type { RoomsSchemaType } from '@/backend/validation/zod-schemas'
+import type { RoomsSchemaType } from '../../validation/zod-schemas'
 
 type RoomFrontendDataType = {
     name: string

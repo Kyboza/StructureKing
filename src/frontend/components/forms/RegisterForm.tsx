@@ -1,11 +1,11 @@
 import { useState } from 'react'
 
-import { registerSchema } from '../../../backend/validation/zod-schemas'
+import { registerSchema } from '../../validation/zod-schemas'
 import { EyeIcon } from '../icons/lucide-eye'
 import { EyeOffIcon } from '../icons/lucide-eye-off'
 import Button from '../reusable/Button'
 
-import type { RegisterSchemaType } from '../../../backend/validation/zod-schemas'
+import type { RegisterSchemaType } from '../../validation/zod-schemas'
 
 const RegisterForm = ({
     onRegisterSuccess,

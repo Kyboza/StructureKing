@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 
-import { useDropdown } from '@/frontend/contexts/hooks/useDropdown'
+import { useDropdown } from '../../../contexts/hooks/useDropdown'
 
 const Dropdown = () => {
     const { isOpen } = useDropdown()

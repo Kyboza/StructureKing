@@ -1,13 +1,13 @@
 import { useState } from 'react'
 
-
+import { useAuthCheck } from '../../frontend-utils/useAuthCheck'
 import RoomForm from '../forms/RoomForm'
 import OuterContainer from '../reusable/OuterContainer'
 import SectionContainer from '../reusable/SectionContainer'
 import RoomsList from '../route-specific/Admin/RoomsList'
 import UsersList from '../route-specific/Admin/UsersList'
 
-import { useAuthCheck } from '@/frontend/frontend-utils/useAuthCheck'
+
 
 
 const Admin = () => {

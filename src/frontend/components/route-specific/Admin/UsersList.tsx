@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
-import { ArrowDownIcon } from '@/frontend/components/icons/lucide-arrow-down'
-import { ArrowUpIcon } from '@/frontend/components/icons/lucide-arrow-up'
+import { ArrowDownIcon } from '../../icons/lucide-arrow-down'
+import { ArrowUpIcon } from '../../icons/lucide-arrow-up'
 
 type UserFrontendType = {
     _id: string

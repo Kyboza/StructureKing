@@ -3,12 +3,12 @@ import { useState } from 'react'
 
 import { useNavigate } from 'react-router-dom'
 
-import { loginSchema } from '../../../backend/validation/zod-schemas'
+import { loginSchema } from '../../validation/zod-schemas'
 import { EyeIcon } from '../icons/lucide-eye'
 import { EyeOffIcon } from '../icons/lucide-eye-off'
 import Button from '../reusable/Button'
 
-import type { LoginSchemaType } from '../../../backend/validation/zod-schemas'
+import type { LoginSchemaType } from '../../validation/zod-schemas'
 
 const LoginForm = () => {
     const navigate = useNavigate()

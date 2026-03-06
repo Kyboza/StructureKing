@@ -1,14 +1,14 @@
 
 import { useState } from 'react'
 
-
+import { useAuthCheck } from '../../frontend-utils/useAuthCheck'
 import LoginForm from '../forms/LoginForm'
 import RegisterForm from '../forms/RegisterForm'
 import Divider from '../reusable/Divider'
 import OuterContainer from '../reusable/OuterContainer'
 import SectionContainer from '../reusable/SectionContainer'
 
-import { useAuthCheck } from '@/frontend/frontend-utils/useAuthCheck'
+
 
 
 const Home = () => {
