@@ -1,4 +1,9 @@
-
+// LÄGG TILL DENNA HÖGST UPP (efter imports)
+console.log('🔍 Kollar miljövariabler...')
+console.log('NODE_ENV:', process.env.NODE_ENV)
+console.log('PORT:', process.env.PORT)
+console.log('MONGODB_URI finns:', !!process.env.MONGODB_URI)
+console.log('Current directory:', process.cwd())
 
 
 import http from 'http'
@@ -31,6 +36,7 @@ import type { Express } from 'express'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+console.log('__dirname:', __dirname)
 
 export let io: Server
 
@@ -101,13 +107,14 @@ const runServer = async () => {
     app.use('/api/rooms', ratelimitCheck, verifyJWT, roomsRoute)
     app.use('/api/bookings', ratelimitCheck, verifyJWT, bookingsRoute)
 
-    // Statisk filserver - relativ till backend-mappen
+    // Statisk filserver
     const frontendDistPath = path.resolve(__dirname, '../../frontend/dist')
     console.log('📁 Statisk mapp sökväg:', frontendDistPath)
     
     app.use(express.static(frontendDistPath))
 
-    app.get("*", (req, res, next) => {
+    // VIKTIGT: Ändrat från "*" till "/*"
+    app.get('/*', (req, res, next) => {
       if (req.path.startsWith('/api/')) {
         return next()
       }
@@ -121,7 +128,6 @@ const runServer = async () => {
       console.log(`🔌 Socket.IO path: /socket.io/`)
     })
 
-    // Förhindra omstarter
     process.on('uncaughtException', (error) => {
       console.error('❌ Oväntat fel:', error)
     })
@@ -129,9 +135,7 @@ const runServer = async () => {
   } catch (error) {
     console.error('❌ Server start misslyckades:', error)
     logError(error)
-    process.exit(1)
   }
 }
 
-// Starta servern
 runServer()
