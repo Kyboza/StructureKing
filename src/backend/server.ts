@@ -5,7 +5,6 @@ console.log('PORT:', process.env.PORT)
 console.log('MONGODB_URI finns:', !!process.env.MONGODB_URI)
 console.log('Current directory:', process.cwd())
 
-
 import http from 'http'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -47,25 +46,7 @@ const runServer = async () => {
     const app: Express = express()
     const server = http.createServer(app)
     
-    // Sätt CORS-headers för ALLA requests
-    app.use((req, res, next) => {
-      const origin = req.headers.origin
-      
-      if (origin && allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin)
-        res.setHeader('Access-Control-Allow-Credentials', 'true')
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
-      }
-      
-      if (req.method === 'OPTIONS') {
-        return res.sendStatus(200)
-      }
-      
-      next()
-    })
-
-    // Initiera Socket.IO
+    // Initiera Socket.IO med CORS
     io = new Server(server, {
       cors: {
         origin: allowedOrigins,
@@ -87,7 +68,9 @@ const runServer = async () => {
 
     // await connectToDatabase()
 
+    // ==== CORS middleware (endast EN gång) ====
     app.use(cors(corsOptions))
+    
     app.use(cookieParser())
     app.use(express.json())
     app.use(express.urlencoded({ extended: false }))
@@ -107,18 +90,28 @@ const runServer = async () => {
     app.use('/api/rooms', ratelimitCheck, verifyJWT, roomsRoute)
     app.use('/api/bookings', ratelimitCheck, verifyJWT, bookingsRoute)
 
-    // Statisk filserver
+    // ==== Statisk filserver och middleware ====
+    
     const frontendDistPath = path.resolve(__dirname, '../../frontend/dist')
     console.log('📁 Statisk mapp sökväg:', frontendDistPath)
     
+    // Servera statiska filer (CSS, JS, bilder etc)
     app.use(express.static(frontendDistPath))
 
-    // VIKTIGT: Ändrat från "*" till "/*"
-    app.get('*', (req, res, next) => {
-      if (req.path.startsWith('/api/')) {
+    // Middleware för att hantera alla icke-API requests
+    app.use((req, res, next) => {
+      // Hoppa över API och Socket.IO anrop
+      if (req.path.startsWith('/api/') || req.path.startsWith('/socket.io/')) {
         return next()
       }
-      res.sendFile(path.join(frontendDistPath, "index.html"))
+      
+      // Skicka index.html för alla andra requests
+      res.sendFile(path.join(frontendDistPath, "index.html"), (err) => {
+        if (err) {
+          console.error('❌ Kunde inte skicka index.html:', err)
+          next(err)
+        }
+      })
     })
 
     const PORT = process.env.PORT || 3000
