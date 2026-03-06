@@ -22,7 +22,6 @@ dotenv.config({
 
 
 const baseServerEnvSchema = z.object({
-    PORT: z.coerce.number().min(1, 'PORT Saknas'),
     MONGODB_URI: z.string().min(1, 'MONGODB_URI Saknas'),
     SENTRY_DSN: z.string().min(1, 'SENTRY DSN Saknas'),
     ACCESS_TOKEN_SECRET: z.string().min(1, 'ACCESS_TOKEN_SECRET Saknas'),

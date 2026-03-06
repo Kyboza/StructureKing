@@ -6,6 +6,7 @@ import cors from 'cors'
 import express from 'express'
 import { Server } from 'socket.io'
 
+
 import { connectToDatabase } from './clients/db.js'
 import { corsOptions } from './config/corsOptions.js'
 import { noJWTAllowed } from './middleware/auth/noJWTAllowed.js'
@@ -21,7 +22,6 @@ import registerRoute from './routes/registerRoute.js'
 import roomsRoute from './routes/roomRoutes.js'
 import usersRoute from './routes/usersRoute.js'
 import { logError } from './utils/logError.js'
-import { env } from './validation/zod.config-server.js'
 
 import type { Express } from 'express'
 
@@ -29,7 +29,8 @@ export const io = new Server({
   cors: {
     origin: [
       "https://www.johanclifford.com", 
-      "https://johanclifford.com",     
+      "https://johanclifford.com",
+      "https://structureking-production.up.railway.app"   
     ],
     methods: ["GET", "POST"],
     credentials: true,
@@ -70,7 +71,8 @@ const runServer = async () => {
         app.use('/api/rooms', ratelimitCheck, verifyJWT, roomsRoute)
         app.use('/api/bookings', ratelimitCheck, verifyJWT, bookingsRoute)
 
-        server.listen(env.PORT)
+        const PORT = process.env.PORT || 3000; // 3000 som fallback lokalt
+        server.listen(PORT);
 
 }
      catch (error) {
