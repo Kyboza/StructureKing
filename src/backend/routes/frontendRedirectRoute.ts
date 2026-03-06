@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { frontendRedirect } from '../controllers/frontendRedirectController'
+import { frontendRedirect } from '../controllers/frontendRedirectController.js'
 
 const router = express.Router()
 

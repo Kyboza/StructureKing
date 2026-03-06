@@ -1,9 +1,9 @@
 import { Types } from 'mongoose'
 
-import Room from '../database/models/room/room-model'
-import { logError } from '../utils/logError'
-import winstonLogger from '../utils/winstonLogger'
-import { roomsSchema } from '../validation/zod-schemas'
+import Room from '../database/models/room/room-model.js'
+import { logError } from '../utils/logError.js'
+import winstonLogger from '../utils/winstonLogger.js'
+import { roomsSchema } from '../validation/zod-schemas.js'
 
 import type { Request, Response } from 'express'
 

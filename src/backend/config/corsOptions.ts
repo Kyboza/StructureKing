@@ -1,4 +1,4 @@
-import { allowedOrigins } from './allowedOrigins'
+import { allowedOrigins } from './allowedOrigins.js'
 
 import type { CorsOptions } from 'cors'
 

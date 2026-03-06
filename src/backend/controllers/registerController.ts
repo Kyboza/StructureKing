@@ -1,11 +1,11 @@
 import bcrypt from 'bcrypt'
 
 
-import User from '../database/models/user/user-model'
-import { logError } from '../utils/logError'
-import winstonLogger from '../utils/winstonLogger'
-import { registerSchema } from '../validation/zod-schemas'
-import { env } from '../validation/zod.config-server'
+import User from '../database/models/user/user-model.js'
+import { logError } from '../utils/logError.js'
+import winstonLogger from '../utils/winstonLogger.js'
+import { registerSchema } from '../validation/zod-schemas.js'
+import { env } from '../validation/zod.config-server.js'
 
 import type { Request, Response } from 'express'
 

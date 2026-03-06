@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
 import { z } from 'zod'
 
-import { logError } from '../utils/logError'
+import { logError } from '../utils/logError.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
