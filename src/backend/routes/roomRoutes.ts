@@ -5,7 +5,7 @@ import {
     getRooms,
     postRooms,
     putRooms,
-} from '../controllers/roomController.ts'
+} from '../controllers/roomController'
 import { verifyAdmin } from '../middleware/auth/verifyAdmin'
 
 const router = express.Router()
