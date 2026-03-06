@@ -1,10 +1,3 @@
-// LÄGG TILL DENNA HÖGST UPP (efter imports)
-console.log('🔍 Kollar miljövariabler...')
-console.log('NODE_ENV:', process.env.NODE_ENV)
-console.log('PORT:', process.env.PORT)
-console.log('MONGODB_URI finns:', !!process.env.MONGODB_URI)
-console.log('Current directory:', process.cwd())
-
 import http from 'http'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -14,7 +7,8 @@ import cors from 'cors'
 import express from 'express'
 import { Server } from 'socket.io'
 
-// import { connectToDatabase } from './clients/db.js'
+
+import { connectToDatabase } from './clients/db.js'
 import { allowedOrigins } from './config/allowedOrigins.js'
 import { corsOptions } from './config/corsOptions.js'
 import { noJWTAllowed } from './middleware/auth/noJWTAllowed.js'
@@ -35,18 +29,16 @@ import type { Express } from 'express'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-console.log('__dirname:', __dirname)
 
 export let io: Server
 
 const runServer = async () => {
   try {
-    console.log('🚀 STARTAR SERVER...')
     
     const app: Express = express()
     const server = http.createServer(app)
     
-    // Initiera Socket.IO med CORS
+  
     io = new Server(server, {
       cors: {
         origin: allowedOrigins,
@@ -58,28 +50,16 @@ const runServer = async () => {
       allowEIO3: true,
       path: '/socket.io/'
     })
-
-    io.on('connection', (socket) => {
-      console.log('🟢 Socket.IO ansluten:', socket.id)
-      socket.on('disconnect', () => {
-        console.log('🔴 Socket.IO frånkopplad:', socket.id)
-      })
-    })
-
-    // await connectToDatabase()
-
-    // ==== CORS middleware (endast EN gång) ====
+    
+    await connectToDatabase()
+  
     app.use(cors(corsOptions))
     
     app.use(cookieParser())
     app.use(express.json())
     app.use(express.urlencoded({ extended: false }))
 
-    // Test endpoint
-    app.get('/api/test', (req, res) => {
-      res.json({ message: 'CORS fungerar!', origin: req.headers.origin })
-    })
-
+ 
     // API-routes
     app.use('/api/register', ratelimitCheck, noJWTAllowed, registerRoute)
     app.use('/api/login', ratelimitCheck, noJWTAllowed, loginRoute)
@@ -90,44 +70,32 @@ const runServer = async () => {
     app.use('/api/rooms', ratelimitCheck, verifyJWT, roomsRoute)
     app.use('/api/bookings', ratelimitCheck, verifyJWT, bookingsRoute)
 
-    // ==== Statisk filserver och middleware ====
-    
+    // Statisk filserver
     const frontendDistPath = path.resolve(__dirname, '../../frontend/dist')
     console.log('📁 Statisk mapp sökväg:', frontendDistPath)
     
-    // Servera statiska filer (CSS, JS, bilder etc)
+    // Kontrollera om mappen finns
     app.use(express.static(frontendDistPath))
 
-    // Middleware för att hantera alla icke-API requests
     app.use((req, res, next) => {
-      // Hoppa över API och Socket.IO anrop
       if (req.path.startsWith('/api/') || req.path.startsWith('/socket.io/')) {
         return next()
       }
       
-      // Skicka index.html för alla andra requests
       res.sendFile(path.join(frontendDistPath, "index.html"), (err) => {
         if (err) {
-          console.error('❌ Kunde inte skicka index.html:', err)
           next(err)
         }
       })
     })
 
     const PORT = process.env.PORT || 3000
-    server.listen(PORT, () => {
-      console.log(`🚀 Server listening on port ${PORT}`)
-      console.log(`📋 CORS tillåter origins:`, allowedOrigins)
-      console.log(`🔌 Socket.IO path: /socket.io/`)
-    })
+    server.listen(PORT)
 
-    process.on('uncaughtException', (error) => {
-      console.error('❌ Oväntat fel:', error)
-    })
 
   } catch (error) {
-    console.error('❌ Server start misslyckades:', error)
     logError(error)
+    process.exit(1)
   }
 }
 
