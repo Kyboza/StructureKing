@@ -4,35 +4,25 @@ import { allowedOrigins } from './allowedOrigins.js'
 import type { CorsOptions } from 'cors'
 
 export const corsOptions: CorsOptions = {
-    origin: (
-        origin: string | undefined,
-        callback: (err: Error | null, allow?: boolean) => void
-    ) => {
-        // Logga varje request
-        console.log('=== CORS Check ===')
-        console.log('Origin:', origin)
-        console.log('Allowed origins:', allowedOrigins)
-        console.log('NODE_ENV:', process.env.NODE_ENV)
+    origin: function (origin, callback) {
+        console.log('🔥 Incoming origin:', origin)
+        console.log('📋 Allowed origins:', allowedOrigins)
         
-        // Tillåt requests utan origin (t.ex. från samma origin)
-        if (!origin) {
-            console.log('✅ Ingen origin - tillåter')
+        // TILLÅT ALLA I PRODUKTION FÖR TEST
+        if (process.env.NODE_ENV === 'production') {
+            console.log('✅ PRODUCTION: tillåter alla origins')
             callback(null, true)
             return
         }
         
-        // Kolla om origin är tillåten
-        if (allowedOrigins.includes(origin)) {
-            console.log('✅ Origin tillåten:', origin)
+        // För utveckling - kontrollera mot listan
+        if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true)
         } else {
-            console.log('❌ CORS-blockerad origin:', origin)
-            callback(new Error('Not Allowed By CORS'))
+            console.log('❌ Blockerad origin:', origin)
+            callback(new Error('Not allowed by CORS'))
         }
     },
     credentials: true,
-    optionsSuccessStatus: 200,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    exposedHeaders: ['Set-Cookie']
+    optionsSuccessStatus: 200
 }
