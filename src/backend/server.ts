@@ -7,6 +7,7 @@ import express from 'express'
 import { Server } from 'socket.io'
 
 import { connectToDatabase } from './clients/db.js'
+import { allowedOrigins } from './config/allowedOrigins.js'
 import { corsOptions } from './config/corsOptions.js'
 import { noJWTAllowed } from './middleware/auth/noJWTAllowed.js'
 import { verifyAdmin } from './middleware/auth/verifyAdmin.js'
@@ -27,14 +28,11 @@ import type { Express } from 'express'
 // Socket.IO-server med CORS
 export const io = new Server({
   cors: {
-    origin: [
-      "https://www.johanclifford.com", 
-      "https://johanclifford.com",
-      "https://structureking-production.up.railway.app"
-    ],
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },
+  allowEIO3: true
 })
 
 const runServer = async () => {
