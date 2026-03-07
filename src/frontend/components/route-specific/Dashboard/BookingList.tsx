@@ -63,7 +63,6 @@ const BookingsList = ({ refreshKey, currentUser }: BookingsListProps) => {
         return () => controller.abort()
     }, [refreshKey])
 
-    if (!currentUser) return null
 
     const handleDeleteBooking = async (bookingId: string): Promise<void> => {
         if (!bookingId) return
@@ -154,17 +153,14 @@ const BookingsList = ({ refreshKey, currentUser }: BookingsListProps) => {
                                     </span>
                                 </p>
 
-                                {currentUser === booking.username && (
-                                    <button
-                                        onClick={() =>
-                                            handleDeleteBooking(booking._id)
-                                        }
-                                        type="button"
-                                        aria-label="Delete booking"
-                                        className="text-error cursor-pointer rounded-md border border-black p-2 text-xs sm:text-sm md:text-base dark:border-white"
-                                    >
-                                        Delete
-                                    </button>
+                               {currentUser && currentUser === booking.username && (
+                                <button
+                                    onClick={() => handleDeleteBooking(booking._id)}
+                                    type="button"
+                                    className="text-error ..."
+                                >
+                                    Delete
+                                </button>
                                 )}
                             </div>
                         </li>
