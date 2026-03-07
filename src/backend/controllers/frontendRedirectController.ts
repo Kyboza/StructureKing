@@ -20,11 +20,20 @@ export async function frontendRedirect(
     res: Response
 ): Promise<Response> {
     const required = (req.body?.require as RequiredMode | undefined) ?? 'None'
-    const token = req.cookies?.['access_token']
+    const accessToken = req.cookies?.['access_token']
+    const refreshToken = req.cookies?.['refresh_token']
 
     // Ingen access token
-    if (!token) {
-        if (required === 'None') {
+    if (!accessToken) {
+        if(required === 'None' && refreshToken){
+            return res.status(401).json({
+                authenticated: false,
+                role: 'None',
+                success: false,
+                reason: 'unauthorized',
+            })
+        }
+        else if (required === 'None') {
             return res.status(200).json({
                 authenticated: false,
                 role: 'None',
@@ -45,7 +54,7 @@ export async function frontendRedirect(
     try {
         // Verifiera token
         claims = jwt.verify(
-            token,
+            accessToken,
             env.ACCESS_TOKEN_SECRET as string
         ) as AccessClaims
     } catch (error) {

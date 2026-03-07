@@ -10,7 +10,7 @@ import SectionContainer from '../reusable/SectionContainer'
 const Home = () => {
     const authStatus = useAuthCheck({ require: 'None' })
     const [isSignInActive, setIsSignInActive] = useState<boolean>(true)
-    if (authStatus === null) return null
+    if (!authStatus) return null
 
     return (
         <OuterContainer>
