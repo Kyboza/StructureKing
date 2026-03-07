@@ -10,7 +10,11 @@ const Dashboard = () => {
     const authStatus = useAuthCheck({ require: 'User' })
     const [refreshKey, setRefreshKey] = useState<number>(0)
 
-    if (!authStatus || !authStatus.authenticated) return null
+    // Visa loader eller bara ingenting tills authStatus laddas
+    if (authStatus === null) return <p>Loading...</p> // eller null
+
+    // Om användaren inte är autentiserad
+    if (!authStatus.authenticated) return <p>Unauthorized</p>
 
     const triggerRefresh = () => setRefreshKey((prev) => prev + 1)
 
@@ -33,11 +37,10 @@ const Dashboard = () => {
                 </h2>
                 {authStatus.username && (
                     <BookingsList
-                    refreshKey={refreshKey}
-                    currentUser={authStatus.username}
-                />
+                        refreshKey={refreshKey}
+                        currentUser={authStatus.username}
+                    />
                 )}
-                
             </SectionContainer>
         </OuterContainer>
     )

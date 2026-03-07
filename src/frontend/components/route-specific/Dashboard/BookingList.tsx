@@ -63,7 +63,6 @@ const BookingsList = ({ refreshKey, currentUser }: BookingsListProps) => {
         return () => controller.abort()
     }, [refreshKey])
 
-
     const handleDeleteBooking = async (bookingId: string): Promise<void> => {
         if (!bookingId) return
 
@@ -153,15 +152,18 @@ const BookingsList = ({ refreshKey, currentUser }: BookingsListProps) => {
                                     </span>
                                 </p>
 
-                               {currentUser && currentUser === booking.username && (
-                                <button
-                                    onClick={() => handleDeleteBooking(booking._id)}
-                                    type="button"
-                                    className="text-error ..."
-                                >
-                                    Delete
-                                </button>
-                                )}
+                                {currentUser &&
+                                    currentUser === booking.username && (
+                                        <button
+                                            onClick={() =>
+                                                handleDeleteBooking(booking._id)
+                                            }
+                                            type="button"
+                                            className="text-error ..."
+                                        >
+                                            Delete
+                                        </button>
+                                    )}
                             </div>
                         </li>
                     ))}
