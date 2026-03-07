@@ -26,7 +26,7 @@ export async function refreshAccessToken(req: Request, res: Response) {
         const payload = jwt.verify(refresh, refreshSecret) as JwtClaims
 
         const accessToken = jwt.sign(
-            { id: payload.id, username: payload.name, role: payload.role },
+            { id: payload.id, username: payload.username, role: payload.role },
             accessSecret,
             { expiresIn: '1h' }
         )
