@@ -52,7 +52,7 @@ export async function verifyJWT(
 
         req.user = {
             id: decoded.id,
-            username: decoded.username,
+            name: decoded.name,
             role: decoded.role,
         }
 

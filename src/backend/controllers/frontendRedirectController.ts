@@ -10,7 +10,7 @@ type RequiredMode = 'None' | Role
 
 interface AccessClaims {
     role: Role
-    username: string
+    name: string
     iat?: number
     exp?: number
 }
@@ -95,7 +95,7 @@ export async function frontendRedirect(
         return res.status(200).json({
             authenticated: true,
             role: claims.role,
-            username: claims.username,
+            username: claims.name,
             success: true,
         })
     }
@@ -106,7 +106,7 @@ export async function frontendRedirect(
             return res.status(403).json({
                 authenticated: true,
                 role: claims.role,
-                username: claims.username,
+                username: claims.name,
                 success: false,
                 reason: 'forbidden',
             })
@@ -115,7 +115,7 @@ export async function frontendRedirect(
         return res.status(200).json({
             authenticated: true,
             role: 'Admin',
-            username: claims.username,
+            username: claims.name,
             success: true,
         })
     }
@@ -124,7 +124,7 @@ export async function frontendRedirect(
     return res.status(200).json({
         authenticated: true,
         role: claims.role,
-        username: claims.username,
+        username: claims.name,
         success: true,
     })
 }

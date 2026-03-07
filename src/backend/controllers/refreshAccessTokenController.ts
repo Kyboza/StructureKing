@@ -1,9 +1,10 @@
 import jwt from 'jsonwebtoken'
 
-import { JwtClaims } from '../types/express.js'
+
 import { logError } from '../utils/logError.js'
 import { env } from '../validation/zod.config-server.js'
 
+import type { JwtClaims } from '../types/express.js'
 import type { Request, Response } from 'express'
 
 export async function refreshAccessToken(req: Request, res: Response) {
