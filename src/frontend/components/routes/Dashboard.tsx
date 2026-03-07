@@ -31,10 +31,13 @@ const Dashboard = () => {
                 <h2 className="mb-2 text-xl font-semibold md:text-2xl">
                     Current Bookings
                 </h2>
-                <BookingsList
+                {authStatus.username && (
+                    <BookingsList
                     refreshKey={refreshKey}
                     currentUser={authStatus.username}
                 />
+                )}
+                
             </SectionContainer>
         </OuterContainer>
     )
