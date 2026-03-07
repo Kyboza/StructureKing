@@ -71,8 +71,8 @@ export async function frontendRedirect(
 
         // Token manipulerad / ogiltig → logga ut user
         if (error instanceof jwt.JsonWebTokenError) {
-            res.clearCookie('refresh_token')
-            res.clearCookie('access_token')
+            res.clearCookie('refresh_token', {secure: true, httpOnly: true, sameSite: 'none' })
+            res.clearCookie('access_token', {secure: true, httpOnly: true, sameSite: 'none' })
             return res.status(401).json({
                 authenticated: false,
                 role: 'None',

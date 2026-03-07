@@ -26,7 +26,7 @@ export function noJWTAllowed(
                 error: 'Signed in users prohibited from this page',
             })
         } catch {
-            res.clearCookie('refresh_token')
+            res.clearCookie('refresh_token', {secure: true, httpOnly: true, sameSite: 'none' })
         }
     }
 

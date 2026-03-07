@@ -47,8 +47,8 @@ export async function refreshAccessToken(req: Request, res: Response) {
                 .json({ ok: false, error: 'Refresh token expired' })
         }
         if (error instanceof jwt.JsonWebTokenError) {
-            res.clearCookie('refresh_token')
-            res.clearCookie('access_token')
+            res.clearCookie('refresh_token', {secure: true, httpOnly: true, sameSite: 'none' })
+            res.clearCookie('access_token', {secure: true, httpOnly: true, sameSite: 'none' })
             return res
                 .status(401)
                 .json({ ok: false, error: 'Invalid refresh token' })
