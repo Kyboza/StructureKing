@@ -5,12 +5,11 @@ import type { CorsOptions } from 'cors'
 
 export const corsOptions: CorsOptions = {
     origin: function (origin, callback) {
-        
         if (process.env.NODE_ENV === 'production') {
             callback(null, true)
             return
         }
-        
+
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true)
         } else {
@@ -18,5 +17,5 @@ export const corsOptions: CorsOptions = {
         }
     },
     credentials: true,
-    optionsSuccessStatus: 200
+    optionsSuccessStatus: 200,
 }

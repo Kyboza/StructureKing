@@ -1,7 +1,6 @@
 import Dropdown from '../components/route-specific/Header/Dropdown'
 import { useDropdown } from '../contexts/hooks/useDropdown'
 
-
 const Header = () => {
     const { isOpen, setIsOpen } = useDropdown()
 

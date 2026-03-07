@@ -22,6 +22,7 @@ export async function frontendRedirect(
     const required = (req.body?.require as RequiredMode | undefined) ?? 'None'
     const token = req.cookies?.['access_token']
 
+    // Ingen access token
     if (!token) {
         if (required === 'None') {
             return res.status(200).json({
@@ -42,6 +43,7 @@ export async function frontendRedirect(
     let claims: AccessClaims
 
     try {
+        // Verifiera token
         claims = jwt.verify(
             token,
             env.ACCESS_TOKEN_SECRET as string
@@ -49,18 +51,8 @@ export async function frontendRedirect(
     } catch (error) {
         logError(error)
 
-        if (
-            error instanceof jwt.TokenExpiredError ||
-            error instanceof jwt.JsonWebTokenError
-        ) {
-            if (required === 'None') {
-                return res.status(200).json({
-                    authenticated: false,
-                    role: 'None',
-                    success: true,
-                })
-            }
-
+        // Token expired → trigga refresh
+        if (error instanceof jwt.TokenExpiredError) {
             return res.status(401).json({
                 authenticated: false,
                 role: 'None',
@@ -69,6 +61,19 @@ export async function frontendRedirect(
             })
         }
 
+        // Token manipulerad / ogiltig → logga ut user
+        if (error instanceof jwt.JsonWebTokenError) {
+            res.clearCookie('refresh_token', { path: '/' })
+            res.clearCookie('access_token', { path: '/' })
+            return res.status(401).json({
+                authenticated: false,
+                role: 'None',
+                success: false,
+                reason: 'invalid',
+            })
+        }
+
+        // Övriga fel → 500
         return res.status(500).json({
             authenticated: false,
             role: 'None',
@@ -76,6 +81,7 @@ export async function frontendRedirect(
         })
     }
 
+    // Sida kräver ingen auth (t.ex login/register page)
     if (required === 'None') {
         return res.status(200).json({
             authenticated: true,
@@ -85,37 +91,31 @@ export async function frontendRedirect(
         })
     }
 
+    // Admin-sida
     if (required === 'Admin') {
-        if (claims.role === 'Admin') {
-            return res.status(200).json({
+        if (claims.role !== 'Admin') {
+            return res.status(403).json({
                 authenticated: true,
-                role: 'Admin',
+                role: claims.role,
                 username: claims.username,
-                success: true,
+                success: false,
+                reason: 'forbidden',
             })
         }
 
-        return res.status(403).json({
-            authenticated: true,
-            role: claims.role,
-            username: claims.username,
-            success: false,
-            reason: 'forbidden',
-        })
-    }
-
-    if (required === 'User') {
         return res.status(200).json({
             authenticated: true,
-            role: claims.role,
+            role: 'Admin',
             username: claims.username,
             success: true,
         })
     }
 
-    return res.status(500).json({
-        authenticated: false,
-        role: 'None',
-        success: false,
+    // User-sida
+    return res.status(200).json({
+        authenticated: true,
+        role: claims.role,
+        username: claims.username,
+        success: true,
     })
 }

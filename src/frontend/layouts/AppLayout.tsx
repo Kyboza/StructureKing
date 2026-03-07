@@ -5,7 +5,6 @@ import Footer from '../components/core/Footer'
 import Header from '../components/core/Header'
 import { Toaster } from '../components/ui/sonner'
 
-
 export const AppLayout = () => {
     return (
         <div className="font-default text-letter dark:text-letter-dark flex min-h-screen w-full flex-col">

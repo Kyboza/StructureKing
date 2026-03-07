@@ -57,11 +57,14 @@ const RegisterForm = ({
         setGeneralRegisterError('')
 
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(registerFormData),
-            })
+            const res = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/register`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(registerFormData),
+                }
+            )
 
             const data = await res.json()
 
@@ -85,7 +88,7 @@ const RegisterForm = ({
                     onRegisterSuccess()
                 }
             }, 1500)
-        } catch  {
+        } catch {
             setGeneralRegisterError('Server error. Please try again later.')
         }
     }

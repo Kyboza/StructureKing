@@ -53,12 +53,15 @@ const RoomForm = ({ onSuccess }: RoomFormProps) => {
         setGeneralError('')
 
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/rooms`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
-                credentials: 'include',
-            })
+            const res = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/rooms`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData),
+                    credentials: 'include',
+                }
+            )
             const data = await res.json()
 
             if (!data.success) {
@@ -79,7 +82,7 @@ const RoomForm = ({ onSuccess }: RoomFormProps) => {
             setTimeout(() => {
                 setSuccessMessage('')
             }, 1500)
-        } catch  {
+        } catch {
             setGeneralError('Server error. Please try again later.')
         }
     }

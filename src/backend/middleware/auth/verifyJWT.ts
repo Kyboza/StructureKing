@@ -1,10 +1,9 @@
 import jwt from 'jsonwebtoken'
 
-
 import { logError } from '../../utils/logError.js'
 import { env } from '../../validation/zod.config-server.js'
 
-import type { JwtClaims } from '../../types/express.d.js';
+import type { JwtClaims } from '../../types/express.d.js'
 import type { NextFunction, Request, Response } from 'express'
 
 export async function verifyJWT(

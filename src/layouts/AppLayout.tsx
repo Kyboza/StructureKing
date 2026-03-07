@@ -6,10 +6,6 @@ import Header from '@/frontend/components/core/Header'
 import BookingNotifications from '@/frontend/components/core/BookingNotifications'
 import { Toaster } from '@/frontend/components/ui/sonner'
 
-
-
-
-
 export const AppLayout = () => {
     return (
         <div className="font-default text-letter dark:text-letter-dark flex min-h-screen w-full flex-col">

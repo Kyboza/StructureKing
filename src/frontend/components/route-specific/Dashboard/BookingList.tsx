@@ -26,11 +26,14 @@ const BookingsList = ({ refreshKey, currentUser }: BookingsListProps) => {
 
         const fetchBookings = async (): Promise<void> => {
             try {
-                const res = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings`, {
-                    method: 'GET',
-                    signal,
-                    credentials: 'include',
-                })
+                const res = await fetch(
+                    `${import.meta.env.VITE_API_URL}/api/bookings`,
+                    {
+                        method: 'GET',
+                        signal,
+                        credentials: 'include',
+                    }
+                )
                 if (!res.ok) {
                     setErrorMsg('Could not fetch bookings')
                     setBookings([])

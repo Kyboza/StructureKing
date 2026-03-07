@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 
 import { useAuthCheck } from '../../frontend-utils/useAuthCheck'
@@ -6,9 +5,6 @@ import BookingForm from '../forms/BookingForm'
 import OuterContainer from '../reusable/OuterContainer'
 import SectionContainer from '../reusable/SectionContainer'
 import BookingsList from '../route-specific/Dashboard/BookingList'
-
-
-
 
 const Dashboard = () => {
     const authStatus = useAuthCheck({ require: 'User' })

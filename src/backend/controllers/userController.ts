@@ -1,4 +1,3 @@
-
 import User from '../database/models/user/user-model.js'
 import { logError } from '../utils/logError.js'
 import winstonLogger from '../utils/winstonLogger.js'

@@ -20,11 +20,14 @@ const RoomsList = ({ refreshKey }: { refreshKey: number }) => {
 
         const fetchRooms = async (): Promise<void> => {
             try {
-                const res = await fetch(`${import.meta.env.VITE_API_URL}/api/rooms`, {
-                    method: 'GET',
-                    signal,
-                    credentials: 'include',
-                })
+                const res = await fetch(
+                    `${import.meta.env.VITE_API_URL}/api/rooms`,
+                    {
+                        method: 'GET',
+                        signal,
+                        credentials: 'include',
+                    }
+                )
 
                 if (!res.ok) {
                     setErrorMsg('Could not get users')

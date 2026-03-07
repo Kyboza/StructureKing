@@ -7,16 +7,17 @@ export default function BookingNotifications() {
     const socketRef = useRef<Socket | null>(null)
 
     useEffect(() => {
-        // Skapa socket-anslutningen endast en gång
         if (!socketRef.current) {
-            socketRef.current = socketClient(`${import.meta.env.VITE_API_URL}`, {
-                withCredentials: true,
-                transports: ['polling', 'websocket'],
-                path: '/socket.io/',
-                reconnectionAttempts: 5,
-                reconnectionDelay: 1000
-            })
-
+            socketRef.current = socketClient(
+                `${import.meta.env.VITE_API_URL}`,
+                {
+                    withCredentials: true,
+                    transports: ['polling', 'websocket'],
+                    path: '/socket.io/',
+                    reconnectionAttempts: 5,
+                    reconnectionDelay: 1000,
+                }
+            )
         }
 
         const socket = socketRef.current
@@ -31,10 +32,10 @@ export default function BookingNotifications() {
 
         const handleDeleteBooking = (data: { message: string }) => {
             toast.error(data.message, {
-                classNames: { 
-                    actionButton: 'bg-primary', 
-                    toast: 'bg-primary' 
-                }
+                classNames: {
+                    actionButton: 'bg-primary',
+                    toast: 'bg-primary',
+                },
             })
         }
 

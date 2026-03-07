@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 
 import { useNavigate } from 'react-router-dom'
@@ -50,12 +49,15 @@ const LoginForm = () => {
         setGeneralLoginError('')
 
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(loginFormData),
-                credentials: 'include',
-            })
+            const res = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/login`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(loginFormData),
+                    credentials: 'include',
+                }
+            )
 
             const data = await res.json()
 

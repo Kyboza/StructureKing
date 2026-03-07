@@ -1,6 +1,6 @@
 export interface JwtClaims {
     id: string // alltid string, ObjectId serialiseras som string i JWT
-    username: string
+    name: string
     role: 'User' | 'Admin'
     iat?: number
     exp?: number

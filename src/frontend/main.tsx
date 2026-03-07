@@ -4,7 +4,6 @@ import * as Sentry from '@sentry/react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 
-
 import App from './App.tsx'
 import AppContext from './contexts/AppContext.tsx'
 

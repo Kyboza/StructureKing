@@ -15,7 +15,9 @@ To run this project locally follow these steps
 5. Start the development server by running: `npm run dev`.
 6. Open your browser and navigate to the provided local URL
 7. **NOTICE** - It will not work because you will miss the ENV-variables instead visit johanclifford.com.
-*
+
+-
+
 ## Api Documentation
 
 ## Authentication & Users

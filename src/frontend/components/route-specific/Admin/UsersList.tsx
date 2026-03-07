@@ -21,11 +21,14 @@ const UsersList = () => {
         const signal = controller.signal
         const fetchUsers = async (): Promise<void> => {
             try {
-                const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users`, {
-                    method: 'GET',
-                    signal,
-                    credentials: 'include',
-                })
+                const res = await fetch(
+                    `${import.meta.env.VITE_API_URL}/api/users`,
+                    {
+                        method: 'GET',
+                        signal,
+                        credentials: 'include',
+                    }
+                )
 
                 if (!res.ok) {
                     setErrorMsg('Could not reach server')

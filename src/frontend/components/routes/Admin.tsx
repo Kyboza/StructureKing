@@ -7,9 +7,6 @@ import SectionContainer from '../reusable/SectionContainer'
 import RoomsList from '../route-specific/Admin/RoomsList'
 import UsersList from '../route-specific/Admin/UsersList'
 
-
-
-
 const Admin = () => {
     const [refreshKey, setRefreshKey] = useState(0)
 

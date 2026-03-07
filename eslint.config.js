@@ -7,44 +7,52 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      js.configs.recommended,
-      tseslint.configs.recommended,
-      reactHooks.configs.flat.recommended,
-      reactRefresh.configs.vite,
-    ],
-    plugins: {
-      import: importPlugin,
-    },
-    rules: {
-      'import/order': [
-        'error',
-        {
-          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'type'],
-          'newlines-between': 'always',
-          alphabetize: { order: 'asc', caseInsensitive: true },
-          pathGroups: [
-            {
-              pattern: 'react',
-              group: 'builtin',
-              position: 'before',
-            },
-          ],
-          pathGroupsExcludedImportTypes: ['react'],
+    globalIgnores(['dist']),
+    {
+        files: ['**/*.{ts,tsx}'],
+        extends: [
+            js.configs.recommended,
+            tseslint.configs.recommended,
+            reactHooks.configs.flat.recommended,
+            reactRefresh.configs.vite,
+        ],
+        plugins: {
+            import: importPlugin,
         },
-      ],
+        rules: {
+            'import/order': [
+                'error',
+                {
+                    groups: [
+                        'builtin',
+                        'external',
+                        'internal',
+                        'parent',
+                        'sibling',
+                        'index',
+                        'type',
+                    ],
+                    'newlines-between': 'always',
+                    alphabetize: { order: 'asc', caseInsensitive: true },
+                    pathGroups: [
+                        {
+                            pattern: 'react',
+                            group: 'builtin',
+                            position: 'before',
+                        },
+                    ],
+                    pathGroupsExcludedImportTypes: ['react'],
+                },
+            ],
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {},
+            },
+        },
+        languageOptions: {
+            ecmaVersion: 2020,
+            globals: globals.browser,
+        },
     },
-    settings: {
-      'import/resolver': {
-        typescript: {},  
-      },
-    },
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
-    },
-  },
 ])

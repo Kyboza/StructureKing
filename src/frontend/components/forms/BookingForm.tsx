@@ -28,11 +28,14 @@ const BookingForm = ({ onSuccess }: BookingFormProps) => {
 
         const fetchRooms = async () => {
             try {
-                const res = await fetch(`${import.meta.env.VITE_API_URL}/api/rooms`, {
-                    method: 'GET',
-                    signal,
-                    credentials: 'include',
-                })
+                const res = await fetch(
+                    `${import.meta.env.VITE_API_URL}/api/rooms`,
+                    {
+                        method: 'GET',
+                        signal,
+                        credentials: 'include',
+                    }
+                )
                 if (!res.ok) {
                     setGeneralError('Could not fetch rooms')
                     return
@@ -82,16 +85,19 @@ const BookingForm = ({ onSuccess }: BookingFormProps) => {
         const endTime = new Date(startTime.getTime() + 30 * 60 * 1000)
 
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({
-                    roomId: selectedRoomId,
-                    startTime: startTime.toISOString(),
-                    endTime: endTime.toISOString(),
-                }),
-            })
+            const res = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/bookings`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        roomId: selectedRoomId,
+                        startTime: startTime.toISOString(),
+                        endTime: endTime.toISOString(),
+                    }),
+                }
+            )
 
             const data = await res.json()
             if (!data.success) {

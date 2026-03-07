@@ -8,10 +8,13 @@ const Dropdown = () => {
 
     const handleLogout = async () => {
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/logout`, {
-                method: 'DELETE',
-                credentials: 'include',
-            })
+            const res = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/logout`,
+                {
+                    method: 'DELETE',
+                    credentials: 'include',
+                }
+            )
             if (!res.ok) return
             navigate('/')
         } catch {

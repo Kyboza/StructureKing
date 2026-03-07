@@ -1,19 +1,11 @@
 import jwt from 'jsonwebtoken'
 
+import { JwtClaims } from '../types/express.js'
 import { logError } from '../utils/logError.js'
 import { env } from '../validation/zod.config-server.js'
 
 import type { Request, Response } from 'express'
 
-type Role = 'User' | 'Admin'
-
-interface RefreshClaims {
-    id: string
-    name: string
-    role: Role
-    iat?: number
-    exp?: number
-}
 export async function refreshAccessToken(req: Request, res: Response) {
     try {
         const refresh = req.cookies?.['refresh_token']
@@ -23,15 +15,15 @@ export async function refreshAccessToken(req: Request, res: Response) {
                 .json({ ok: false, error: 'Missing refresh token' })
         }
 
-        const refreshSecret = env.REFRESH_TOKEN_SECRET as string | undefined
-        const accessSecret = env.ACCESS_TOKEN_SECRET as string | undefined
+        const refreshSecret = env.REFRESH_TOKEN_SECRET
+        const accessSecret = env.ACCESS_TOKEN_SECRET
         if (!refreshSecret || !accessSecret) {
             return res
                 .status(500)
                 .json({ ok: false, error: 'Server misconfiguration' })
         }
 
-        const payload = jwt.verify(refresh, refreshSecret) as RefreshClaims
+        const payload = jwt.verify(refresh, refreshSecret) as JwtClaims
 
         const accessToken = jwt.sign(
             { id: payload.id, username: payload.name, role: payload.role },
@@ -43,7 +35,6 @@ export async function refreshAccessToken(req: Request, res: Response) {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'none',
-            path: '/',
             maxAge: 60 * 60 * 1000,
         })
 
@@ -56,6 +47,8 @@ export async function refreshAccessToken(req: Request, res: Response) {
                 .json({ ok: false, error: 'Refresh token expired' })
         }
         if (error instanceof jwt.JsonWebTokenError) {
+            res.clearCookie('refresh_token', { path: '/' })
+            res.clearCookie('access_token', { path: '/' })
             return res
                 .status(401)
                 .json({ ok: false, error: 'Invalid refresh token' })
