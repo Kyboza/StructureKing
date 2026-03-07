@@ -25,15 +25,14 @@ export async function frontendRedirect(
 
     // Ingen access token
     if (!accessToken) {
-        if(required === 'None' && refreshToken){
+        if (required === 'None' && refreshToken) {
             return res.status(401).json({
                 authenticated: false,
                 role: 'None',
                 success: false,
                 reason: 'unauthorized',
             })
-        }
-        else if (required === 'None') {
+        } else if (required === 'None') {
             return res.status(200).json({
                 authenticated: false,
                 role: 'None',
@@ -55,7 +54,7 @@ export async function frontendRedirect(
         // Verifiera token
         claims = jwt.verify(
             accessToken,
-            env.ACCESS_TOKEN_SECRET as string
+            env.ACCESS_TOKEN_SECRET
         ) as AccessClaims
     } catch (error) {
         logError(error)

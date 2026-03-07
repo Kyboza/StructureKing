@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken'
 
-
 import { logError } from '../utils/logError.js'
 import { env } from '../validation/zod.config-server.js'
 

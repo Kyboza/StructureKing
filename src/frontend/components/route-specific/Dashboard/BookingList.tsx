@@ -63,6 +63,8 @@ const BookingsList = ({ refreshKey, currentUser }: BookingsListProps) => {
         return () => controller.abort()
     }, [refreshKey])
 
+    if (!currentUser) return null
+
     const handleDeleteBooking = async (bookingId: string): Promise<void> => {
         if (!bookingId) return
 
