@@ -8,7 +8,7 @@ import express from 'express'
 import { Server } from 'socket.io'
 
 import { connectToDatabase } from './clients/db.js'
-// import { allowedOrigins } from './config/allowedOrigins.js'
+import { allowedOrigins } from './config/allowedOrigins.js'
 import { corsOptions } from './config/corsOptions.js'
 import { noJWTAllowed } from './middleware/auth/noJWTAllowed.js'
 import { verifyAdmin } from './middleware/auth/verifyAdmin.js'
@@ -37,18 +37,15 @@ const runServer = async () => {
         const server = http.createServer(app)
 
         io = new Server(server, {
-          
-        cors: {
-            origin: [
-                "https://www.johanclifford.com",
-                "https://johanclifford.com"
-            ],
-        methods: ["GET", "POST", "UPDATE", "DELETE"],
-        credentials: true,
-        },
+            cors: {
+                origin: allowedOrigins,
+                methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+                credentials: true,
+                allowedHeaders: ['Content-Type', 'Authorization'],
+            },
             transports: ['polling', 'websocket'],
             allowEIO3: true,
-            path: "/socket.io"
+            path: '/socket.io',
         })
 
         await connectToDatabase()
@@ -59,7 +56,6 @@ const runServer = async () => {
         app.use(express.json())
         app.use(express.urlencoded({ extended: false }))
         app.set("trust proxy", 1)
-
         // API-routes
         app.use('/api/register', ratelimitCheck, noJWTAllowed, registerRoute)
         app.use('/api/login', ratelimitCheck, noJWTAllowed, loginRoute)
