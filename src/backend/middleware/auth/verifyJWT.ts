@@ -12,43 +12,27 @@ export async function verifyJWT(
     next: NextFunction
 ): Promise<Response | void> {
     try {
-        let accessToken = req.cookies?.['access_token']
+        const accessToken = req.cookies?.['access_token']
 
         if (!accessToken) {
-            const refresh = req.cookies?.['refresh_token']
-            if (refresh) {
-                try {
-                    const r = await fetch(
-                        `${env.VITE_API_URL}/api/refreshAccessToken`,
-                        {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            credentials: 'include',
-                        }
-                    )
-
-                    if (r.ok) {
-                        accessToken = req.cookies?.['access_token']
-                    } else {
-                        return res
-                            .status(401)
-                            .json({ error: 'Unauthorized, refresh failed' })
-                    }
-                } catch (err) {
-                    logError(err)
-                    return res
-                        .status(401)
-                        .json({ error: 'Unauthorized, refresh failed' })
-                }
-            } else {
-                return res.status(401).json({ error: 'Unauthorized, no token' })
-            }
+            return res
+                .status(401)
+                .json({ error: 'Unauthorized, no token' })
         }
 
-        const decoded = jwt.verify(
-            accessToken,
-            env.ACCESS_TOKEN_SECRET
-        ) as JwtClaims
+        let decoded: JwtClaims
+
+        try {
+            decoded = jwt.verify(
+                accessToken,
+                env.ACCESS_TOKEN_SECRET
+            ) as JwtClaims
+        } catch (err) {
+            logError(err)
+            return res
+                .status(401)
+                .json({ error: 'Unauthorized, invalid or expired token' })
+        }
 
         req.user = {
             id: decoded.id,
@@ -56,7 +40,7 @@ export async function verifyJWT(
             role: decoded.role,
         }
 
-        next()
+        return next()
     } catch (error) {
         logError(error)
         return res.status(500).json({ error: 'Server Error' })

@@ -8,7 +8,7 @@ import express from 'express'
 import { Server } from 'socket.io'
 
 import { connectToDatabase } from './clients/db.js'
-import { allowedOrigins } from './config/allowedOrigins.js'
+// import { allowedOrigins } from './config/allowedOrigins.js'
 import { corsOptions } from './config/corsOptions.js'
 import { noJWTAllowed } from './middleware/auth/noJWTAllowed.js'
 import { verifyAdmin } from './middleware/auth/verifyAdmin.js'
@@ -43,7 +43,7 @@ const runServer = async () => {
                 "https://www.johanclifford.com",
                 "https://johanclifford.com"
             ],
-        methods: ["GET", "POST"],
+        methods: ["GET", "POST", "UPDATE", "DELETE"],
         credentials: true,
         },
             transports: ['polling', 'websocket'],
