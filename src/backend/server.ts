@@ -37,15 +37,18 @@ const runServer = async () => {
         const server = http.createServer(app)
 
         io = new Server(server, {
-            cors: {
-                origin: allowedOrigins,
-                methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-                credentials: true,
-                allowedHeaders: ['Content-Type', 'Authorization'],
-            },
+          
+        cors: {
+            origin: [
+                "https://www.johanclifford.com",
+                "https://johanclifford.com"
+            ],
+        methods: ["GET", "POST"],
+        credentials: true,
+        },
             transports: ['polling', 'websocket'],
             allowEIO3: true,
-            path: '/socket.io/',
+            path: "/socket.io"
         })
 
         await connectToDatabase()
@@ -55,6 +58,7 @@ const runServer = async () => {
         app.use(cookieParser())
         app.use(express.json())
         app.use(express.urlencoded({ extended: false }))
+        app.set("trust proxy", 1)
 
         // API-routes
         app.use('/api/register', ratelimitCheck, noJWTAllowed, registerRoute)
