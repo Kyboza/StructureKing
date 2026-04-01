@@ -1,6 +1,6 @@
 import http from 'http'
-import path from 'path'
-import { fileURLToPath } from 'url'
+// import path from 'path'
+// import { fileURLToPath } from 'url'
 
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
@@ -26,8 +26,8 @@ import { logError } from './utils/logError.js'
 
 import type { Express } from 'express'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+// const __filename = fileURLToPath(import.meta.url)
+// const __dirname = path.dirname(__filename)
 
 export let io: Server
 
@@ -77,25 +77,25 @@ const runServer = async () => {
         app.use('/api/bookings', ratelimitCheck, verifyJWT, bookingsRoute)
 
         // Statisk filserver
-        const frontendDistPath = path.resolve(__dirname, '../../frontend/dist')
+        // const frontendDistPath = path.resolve(__dirname, '../../frontend/dist')
 
-        // Kontrollera om mappen finns
-        app.use(express.static(frontendDistPath))
+        // // Kontrollera om mappen finns
+        // app.use(express.static(frontendDistPath))
 
-        app.use((req, res, next) => {
-            if (
-                req.path.startsWith('/api/') ||
-                req.path.startsWith('/socket.io/')
-            ) {
-                return next()
-            }
+        // app.use((req, res, next) => {
+        //     if (
+        //         req.path.startsWith('/api/') ||
+        //         req.path.startsWith('/socket.io/')
+        //     ) {
+        //         return next()
+        //     }
 
-            res.sendFile(path.join(frontendDistPath, 'index.html'), (err) => {
-                if (err) {
-                    next(err)
-                }
-            })
-        })
+        //     res.sendFile(path.join(frontendDistPath, 'index.html'), (err) => {
+        //         if (err) {
+        //             next(err)
+        //         }
+        //     })
+        // })
 
         const PORT = process.env.PORT || 3000
         server.listen(PORT)
